@@ -1,0 +1,357 @@
+---
+title: "260131 - DESeq2 Raw count normalization and DEG"
+output: html_notebook
+---
+
+This script is to take 'raw count' RNAseq that could come from Novogene or could be retrieved from previously published data.
+
+You will need a Counts matrix and a metadata file
+
+***Important steps:***
+1. In your Novogene results folder, go to '3.Quant' - '1.Count' and copy the 'gene_count.xlsx' file into your working directory for this script. Change the top row (column names which are your samples) to S1-S(however many samples you have) with capital S and save the file as a .csv, see example in this directory.
+2. Make a metadata file that explains what each sample is and also corresponds to S1-S(however many samples you have), see example in this directory as it needs the same headings.
+3. Adjust the script near the start to however many samples are in your counts file.
+4. Make sure you are using the right species database (Mm (mouse) vs Hs (human)).
+5. List all of the group-group comparisons that you want to analyze (best to just run all comparisons so you have them)
+4. If these are right, the script should work. 
+
+***Output (what you will get):***
+- .csv files that contain your normalized counts. I have put three different methods of normalized counts in this script, and playing around found that they all produce near identical results in downstream analysis. I use the "normalized_counts.csv" for subsequent scripts.
+- A boxplot of the median counts for each sample.
+- A boxplot comparison of how the normalization process brings in the library size range compared to the raw counts data (this is just proof of concept that the idea of normalization is to correct for differences in sequencing depth between samples).
+- .csv and .xlsx files of differential gene expression results for each comparison that you choose. One file has '_sig' as it is the list of only significant genes with FDR padj < 0.05 and an |log2FC|>1.
+- .rds R object containing the differential gene expression results for analysis later in pipeline.
+
+
+First step is to load in everything and run DESeq2. This normalizes counts and runs DEG analysis which all get stored in the DESeq object (dds) which can be accessed throughout the script.
+**NOTE** DESeq2 naturally uses a reference group (control group). Depending on your experiment, you will have multiple comparisons you want to make and may want to adjust the control group. For this you have to rerun DESeq2 and specify your control group (which we do later in the script). But we will use the main control group to start off with and do those comparisons first.
+```{r}
+# Load required libraries
+library(DESeq2)
+library(ggplot2)
+library(pheatmap)
+library(openxlsx)
+library(apeglm)
+library(AnnotationDbi)
+library(org.Hs.eg.db)
+library(biomaRt)
+
+# To start, read in counts
+counts <- read.csv(file = "gene_count.csv",
+                   header = TRUE, # makes the top row if the csv file the header in the dataframe
+                   row.names = 1) # makes the first row of the csv file the labels for the rows (genes)
+counts <- counts[, 1:6] # change 6 to however many samples that you have
+
+####
+# If you were reading in counts from your own data straight from tximport,
+# you would read it in with a command such as:
+# txi <- readRDS("data_tximport.RDS")
+# counts <- txi$counts
+# This only matters if you don't have a raw counts file for some reason
+###
+
+# Load in sample metadata
+metadata <- read.csv(file = "metadata.csv",
+                     header = TRUE, 
+                     row.names = 1)
+
+
+# Create DESeqDataSet object using "Group" as the condition column
+dds <- DESeqDataSetFromMatrix(countData = counts, colData = metadata, design = ~ Group)
+
+
+# Keep genes with at least 10 counts in at least one sample
+dds <- dds[rowSums(counts(dds)) >= 10, ]
+
+# Run the DESeq function
+dds <- DESeq(dds)
+
+# Create combined sample label (e.g. GFP_Sham_1)
+metadata$SampleLabel <- paste(metadata$Group, metadata$Replicate, sep = "_")
+
+# Rename samples inside DESeq object
+colnames(dds) <- metadata$SampleLabel
+
+# Get normalized counts
+normalized_counts <- counts(dds, normalized=TRUE)
+head(normalized_counts)
+
+# Write the normalized counts to a CSV file
+write.csv(normalized_counts, file = "Results/Normalized_counts/normalized_counts.csv", row.names = TRUE)
+
+
+# Variance Stabilizing Transformation
+vst_counts <- vst(dds, blind=TRUE)
+
+# Extract vst-transformed counts
+vst_counts <- assay(vst(dds, blind=TRUE))
+
+# Write the vst-transformed counts to a CSV file
+write.csv(vst_counts, file = "Results/Normalized_counts/vst_counts.csv", row.names = TRUE)
+
+
+# Regularized Log Transformation (alternative)
+rlog_counts <- rlog(dds, blind=TRUE)
+
+# Extract rlog-transformed counts
+rlog_counts <- assay(rlog(dds, blind=TRUE))
+
+# Write the rlog-transformed counts to a CSV file
+write.csv(rlog_counts, file = "Results/Normalized_counts/rlog_counts.csv", row.names = TRUE)
+```
+
+
+********************************************************************************
+
+
+I want a quick visualization of the normalized counts.
+```{r}
+# Define output file
+png("Plots/rlog_boxplot.png", width = 800, height = 600)
+
+# Create a boxplot of the rlog-transformed counts
+boxplot(rlog_counts, 
+        main = "Boxplot of Rlog Transformed Counts", 
+        xlab = "Samples", 
+        ylab = "Rlog Counts",
+        las = 2)  # Rotate axis labels for better readability
+
+# Close the graphics device
+dev.off()
+
+boxplot(rlog_counts, 
+        main = "Boxplot of Rlog Transformed Counts", 
+        xlab = "Samples", 
+        ylab = "Rlog Counts",
+        las = 2)  # Rotate axis labels for better readability
+
+```
+The black median line in the boxplot should line up really well after normalization
+
+
+********************************************************************************
+
+
+I want a plot to see what the library size looks like before and after normalization.
+```{r}
+# Calculate library sizes for raw counts
+raw_library_sizes <- colSums(counts(dds, normalized=FALSE))
+
+# Calculate library sizes for normalized counts
+normalized_library_sizes <- colSums(counts(dds, normalized=TRUE))
+
+# Create a data frame for plotting
+library_size_df <- data.frame(
+  Sample = rep(colnames(dds), 2),
+  LibrarySize = c(raw_library_sizes, normalized_library_sizes),
+  Type = rep(c("Raw", "Normalized"), each = ncol(dds))
+)
+
+# Create a box plot of library sizes
+plot <- ggplot(library_size_df, aes(x = Type, y = LibrarySize, fill = Type)) +
+  geom_boxplot() +
+  labs(title = "Library Sizes Before and After Normalization",
+       x = "Data Type",
+       y = "Library Size (Column Sum)") +
+  theme_bw()
+
+plot
+
+# Save the plot
+ggsave("Plots/library_size_boxplot.png", plot = plot, width = 8, height = 6, dpi = 300)
+
+```
+
+
+********************************************************************************
+
+
+The next step is to extract the differential gene expression results from the dds object. First use the apeglm method to apply log2 fold change shrinkage. Shrinkage reduces exaggerated fold changes that often occur in genes with very low read counts or high variability. For example, a gene with 10 counts in one group and 2 in another may show a large fold change, but this estimate is very uncertain and may not be biologically meaningful. Shrinkage makes these fold changes more conservative and reliable, especially for low-count genes, while leaving well-expressed genes largely unchanged. Importantly, shrinkage does not affect p-values — it only improves the accuracy of the fold change estimates. Because of this, you may see fewer genes passing fold-change cutoffs compared to some external pipelines (e.g., Novogene), but the reported effect sizes are generally more trustworthy.
+
+We also want to create a really detailed DEG output spreadsheet mimicking what Novogene provides and will work with the downstream scripts we already have. Here is a function that can generate one of those spreadsheets:
+
+Here we have created a function that can be run easily by just inputing the two groups that you want to compare. It is critical you know which group you want to be the control group in your comparison.
+```{r}
+run_DEG <- function(dds, metadata, group1, group2, base_outdir = "Results/DEG") {
+  
+  message("Running DEG: ", group1, " vs ", group2)
+  
+  # Create a folder for the results sheet to go into
+  comp_name <- paste0(group1, "_vs_", group2)
+  outdir <- file.path(base_outdir, comp_name)
+  dir.create(outdir, recursive = TRUE, showWarnings = FALSE)
+  
+  ###
+
+  # Set the control group as the reference and rerun DESeq2
+  dds$Group <- relevel(dds$Group, ref = group2)
+  dds <- DESeq(dds)
+  
+  coef_name <- paste0("Group_", group1, "_vs_", group2)
+  
+  if (!coef_name %in% resultsNames(dds)) {
+    stop(paste("Coefficient not found:", coef_name)) # Sanity check to make sure you input your group names correctly
+  }
+  
+  ###
+  
+  # Extract the shrinked DEG results from the dds object
+  res <- lfcShrink(dds, coef = coef_name, type = "apeglm")
+  res_df <- as.data.frame(res)
+  res_df$gene_id <- rownames(res_df)
+  
+  colnames(res_df)[colnames(res_df) == "baseMean"] <- "ExperimentMean" # I renamed this to make some more sense
+  
+  ###
+  
+  # Extract normalized counts (only samples in these two groups) to add to the final output sheet 
+  samples_keep <- metadata$SampleLabel[metadata$Group %in% c(group1, group2)]
+  
+  norm_counts <- as.data.frame(counts(dds, normalized = TRUE)[, samples_keep, drop = FALSE])
+  norm_counts$gene_id <- rownames(norm_counts)
+  
+  # Get group norm count averages to add to the spreadsheet (need to specify your groups here)
+  groups <- metadata$Group
+  names(groups) <- metadata$SampleLabel
+  
+  norm_counts[[group1]] <- rowMeans(norm_counts[, names(groups[groups == group1]), drop = FALSE])
+  norm_counts[[group2]] <- rowMeans(norm_counts[, names(groups[groups == group2]), drop = FALSE])
+  
+  # Merge counts into the DEG results dataframe
+  res_df <- merge(res_df, norm_counts, by = "gene_id", all.x = TRUE)
+  
+  ###
+
+  # # Get gene symbols (org.Hs.eg.db) to add to spreadhseet
+  gene_symbols <- mapIds(org.Hs.eg.db, # Need to adjust if using mouse vs human data
+                         keys = res_df$gene_id,
+                         column = "SYMBOL",
+                         keytype = "ENSEMBL",
+                         multiVals = "first")
+  
+  res_df$gene_name <- gene_symbols
+  
+  # Get genomic annotation (biomaRt) to add to spreadsheet
+  mart <- useEnsembl(biomart = "genes",
+                     dataset = "hsapiens_gene_ensembl") # Need to adjust if using mouse vs human data
+  
+  annotation_df <- getBM(
+    attributes = c("ensembl_gene_id",
+                   "chromosome_name",
+                   "start_position",
+                   "end_position",
+                   "strand",
+                   "gene_biotype",
+                   "description"),
+    filters = "ensembl_gene_id",
+    values = res_df$gene_id,
+    mart = mart
+  )
+  
+  colnames(annotation_df) <- c("gene_id",
+                               "gene_chr",
+                               "gene_start",
+                               "gene_end",
+                               "gene_strand",
+                               "gene_biotype",
+                               "gene_description")
+  
+  annotation_df$gene_length <- annotation_df$gene_end - annotation_df$gene_start
+  
+  # Merge into the results dataframe
+  master_df <- merge(res_df, annotation_df, by = "gene_id", all.x = TRUE)
+  
+  
+  
+  # Reorder the dataframe for saving
+  final_order <- c("gene_id",
+                   samples_keep,
+                   group1,
+                   group2,
+                   "ExperimentMean",
+                   "log2FoldChange",
+                   "lfcSE",
+                   "pvalue",
+                   "padj",
+                   "gene_name",
+                   "gene_chr",
+                   "gene_start",
+                   "gene_end",
+                   "gene_strand",
+                   "gene_length",
+                   "gene_biotype",
+                   "gene_description")
+  
+  master_df <- master_df[, final_order]
+  master_df <- master_df[order(master_df$padj), ] # Sort based on significance
+  
+  ###
+  
+ # Save the object for downstream analysis - e.g. transcription factor inference
+  tf_objects <- list(
+    dds = dds,
+    res_raw = results(dds, name = coef_name),
+    res_shrunk = res,
+    contrast = c(group1, group2),
+    coef = coef_name,
+    organism = "human",
+    date = Sys.Date()
+  )
+
+  tf_rds <- file.path(outdir, paste0(comp_name, "_DEG_object.rds"))
+  saveRDS(tf_objects, tf_rds)
+  
+  
+  # Export files (both xlsx for sharing and csv for further analysis)
+  full_xlsx <- file.path(outdir, paste0(comp_name, "_deg", ".xlsx"))
+  full_csv  <- file.path(outdir, paste0(comp_name, "_deg", ".csv"))
+  
+  sig_df <- subset(master_df, padj < 0.05 & abs(log2FoldChange) > 1) # Additional file for 
+  
+  sig_xlsx <- file.path(outdir, paste0(comp_name, "_deg_sig", ".xlsx"))
+  sig_csv  <- file.path(outdir, paste0(comp_name, "_deg_sig", ".csv"))
+  
+  write.xlsx(master_df, full_xlsx, rowNames = FALSE)
+  write.csv(master_df, full_csv, row.names = FALSE)
+  
+  write.xlsx(sig_df, sig_xlsx, rowNames = FALSE)
+  write.csv(sig_df, sig_csv, row.names = FALSE)
+  
+  message("Saved results in folder: ", outdir)
+  
+  return(master_df)
+}
+```
+
+
+********************************************************************************
+
+
+List all of the combinations that you want to run here and it will automatically populate into your Results/DEG/ folder! Make sure to check them carefully! Add more combinations if needed.
+***Critical*** - The second listed group will be the control of the comparison which you need to know to read the direction of fold change accurately
+```{r}
+run_DEG(dds, metadata, "Membrane", "Blood")
+```
+
+**NOTE**
+using 'apeglm' for LFC shrinkage. If used in published research, please cite:
+    Zhu, A., Ibrahim, J.G., Love, M.I. (2018) Heavy-tailed prior distributions for
+    sequence count data: removing the noise and preserving large differences.
+    Bioinformatics. https://doi.org/10.1093/bioinformatics/bty895
+
+
+********************************************************************************
+
+
+I like to finish with the session info command as it lists all the versions that were used at the time of analysis. The other lines will save the output as a text file with the date that the command was run.
+```{r}
+sessionInfo()
+
+# Create filename with date prefix
+filename <- paste0(Sys.Date(), "_sessionInfo.txt")
+
+# Save sessionInfo output
+capture.output(sessionInfo(), file = filename)
+
+```
+

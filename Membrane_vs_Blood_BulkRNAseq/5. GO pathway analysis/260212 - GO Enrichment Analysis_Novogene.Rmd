@@ -1,0 +1,150 @@
+---
+title: "260216 - GO Enrichment Analysis_Novogene"
+output: html_notebook
+---
+***Purpose:***
+This script is designed to run GO enrichment analysis using the DEG spreadsheets that you get from the Novogene data package. *These are the same that you use for the volcano plots.* 
+
+This uses the clusterProfiler package which is the gold standard for robust and repeatable GO pathway analysis at the momement.
+
+***Important steps:***
+1. You need to take the DEG spreadsheets from Novogene that you used in the volcano plot script and place them in the "DEG_Spreadsheets" folder.
+2. Make sure that the right organism database is being used. (e.g. org.Hs.eg.db for humans and org.Mm.eg.db for mice). 
+3. Run the script, it should automatically do the analysis for you. Note that the full automated script can take a while (minutes) depending on how many spreadsheets you are looping through.
+
+***Output (what you will get):***
+- For each comparison, you will get a full .csv file that has ball of the significant pathways from every combination of up/down/all and BP/MF/CC (This is used in a future script)
+- You will also get a folder for each comparison that has these different combinations in separate spreadsheets. This is better for actually looking through the data.
+
+***What you can adjust:***
+- You can adjust the logFC cutoff to change the amount of genes you input into the pathway analysis. Be sure to change the output folder and file names to reflect this. You should publish volcano plots and pathway analysis with a consistent threshold so if you change this, you should rerun your volcano plots with the appropriate threshold lines.
+- You can play around with various settings in the analysis, e.g. statistical methods
+
+Here is the full script:
+```{r}
+# Load necessary libraries
+library(clusterProfiler)
+library(org.Hs.eg.db) # Change if mouse or human
+library(dplyr)
+library(openxlsx)
+
+# Define input and output directories
+input_dir <- "DEG_Spreadsheets"
+output_dir <- "Results"
+
+# List all CSV files in the input directory
+files <- list.files(input_dir, pattern = "*.csv", full.names = TRUE)
+
+# Define function to run GO enrichment and save individual results
+run_enrichment <- function(gene_list, ontology, gene_set_name, subfolder, file_prefix) {
+
+  # Skip if too few genes (avoids unnecessary errors)
+  if (length(gene_list) < 5) return(NULL)
+
+  enrich_result <- tryCatch(
+    enrichGO(
+      gene = gene_list,
+      universe = all_genes,
+      OrgDb = org.Hs.eg.db, # Change if mouse or human
+      keyType = "ENTREZID",
+      ont = ontology,
+      pAdjustMethod = "BH",
+      pvalueCutoff = 0.05,
+      qvalueCutoff = 0.05,
+      readable = TRUE
+    ),
+    error = function(e) NULL
+  )
+
+  # If enrichment failed or returned nothing
+  if (is.null(enrich_result)) return(NULL)
+
+  result_df <- as.data.frame(enrich_result)
+
+  # If zero significant pathways for a particular direction/ontology combination
+  if (nrow(result_df) == 0) return(NULL)
+
+  # Add metadata
+  result_df$GeneSet <- gene_set_name
+  result_df$Ontology <- ontology
+
+  # Save individual Excel output
+  individual_file <- file.path(
+    subfolder,
+    paste0(file_prefix, "_", gene_set_name, "_", ontology, ".xlsx")
+  )
+
+  write.xlsx(result_df, individual_file, rowNames = FALSE)
+
+  return(result_df)
+}
+
+# Loop through each file and perform enrichment analysis
+for (file in files) {
+  # Load data
+  master <- read.csv(file)
+  
+  # Convert Ensembl IDs to Entrez IDs
+  all_genes <- bitr(master$gene_id, fromType = "ENSEMBL",
+                    toType = "ENTREZID", OrgDb = org.Hs.eg.db) %>% # Change if mouse or human
+    filter(!is.na(ENTREZID)) %>%
+    pull(ENTREZID)
+  
+  All.degs <- bitr(master$gene_id[master$padj < 0.05], "ENSEMBL", "ENTREZID", org.Hs.eg.db) %>%
+    filter(!is.na(ENTREZID)) %>% pull(ENTREZID)
+  
+  upregulated <- bitr(master$gene_id[master$padj < 0.05 & master$log2FoldChange > 1],
+                      "ENSEMBL", "ENTREZID", org.Hs.eg.db) %>%
+    filter(!is.na(ENTREZID)) %>% pull(ENTREZID)
+  
+  downregulated <- bitr(master$gene_id[master$padj < 0.05 & master$log2FoldChange < 1],
+                        "ENSEMBL", "ENTREZID", org.Hs.eg.db) %>%
+    filter(!is.na(ENTREZID)) %>% pull(ENTREZID)
+
+  # Ontologies
+  ontologies <- c("BP", "CC", "MF")
+
+  # Store all results per comparison
+  all_results <- list()
+  file_prefix <- tools::file_path_sans_ext(basename(file))
+
+  # Create a unique subfolder for this input file
+  subfolder <- file.path(output_dir, file_prefix)
+  dir.create(subfolder, showWarnings = FALSE)
+
+  # Run enrichment
+  for (ontology in ontologies) {
+    all_res <- run_enrichment(All.degs, ontology, "All_genes", subfolder, file_prefix)
+    if (!is.null(all_res)) all_results <- append(all_results, list(all_res))
+    
+    up_res <- run_enrichment(upregulated, ontology, "Upregulated_genes", subfolder, file_prefix)
+    if (!is.null(up_res)) all_results <- append(all_results, list(up_res))
+    
+    down_res <- run_enrichment(downregulated, ontology, "Downregulated_genes", subfolder, file_prefix)
+    if (!is.null(down_res)) all_results <- append(all_results, list(down_res))
+  }
+
+  # Combine & Save final multi-ontology Excel file
+  if (length(all_results) > 0) {
+    final_results <- do.call(rbind, all_results)
+    output_file <- file.path(output_dir, paste0(file_prefix, "_GO_enrichment_results_combined.xlsx"))
+    write.xlsx(final_results, output_file, rowNames = FALSE)
+  }
+}
+```
+
+
+********************************************************************************
+
+
+I like to finish with the session info command as it lists all the versions that were used at the time of analysis. The other lines will save the output as a text file with the date that the command was run.
+```{r}
+sessionInfo()
+
+# Create filename with date prefix
+filename <- paste0(Sys.Date(), "_sessionInfo.txt")
+
+# Save sessionInfo output
+capture.output(sessionInfo(), file = filename)
+
+```

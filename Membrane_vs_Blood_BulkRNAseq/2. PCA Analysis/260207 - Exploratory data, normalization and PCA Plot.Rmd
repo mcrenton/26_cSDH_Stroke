@@ -1,0 +1,435 @@
+---
+title: "260207 - Exploratory data, normalization and PCA Plot"
+output: html_notebook
+---
+Purpose:
+Creating a PCA plot that allows you to compare how similar your replicates/groups are transcriptionally in 2D or 3D space. Note that this script is standalone, in that all of the data manipulation is just for exploring the data and generating a PCA plot, this does not affect any downstream applications at all.
+
+This script uses the normalized counts from script 1. "DESeq2 Raw count normalization". The same metadata file from that directory is also used here. 
+
+I used the "exploratory data analysis" script from the FAIR Bioinformatics Course, modifying it for this data.
+
+***Important steps:***
+1. Bring the metadata file from the previous normalization directory into this directory
+2. Take the normalized counts .csv files generated in the previous normalization script and place into the "Normalized_counts" folder in this directory.
+3. Run the first script chunk and look at the visualizations of the data (graphs). Make sure the data looks to have been made 'normal'. Also see how your replicates group together in the final plot (is this expected?)
+4. Adjust the group names throughout the PCA script chunks so the labels are correct in your figures
+e.g. where it lists the groups like:
+
+pca_data$Group <- factor(pca_data$Group,
+                         levels = c("Control", "PDGF", "PD_Pep4", "PD_Pep5"),
+                         labels = c("Control", "PD", "PD + OT Pep", "PD + CycliCx"))
+                         
+The 'levels' need to match your group column in the metadata file
+The 'labels' will be whatever you want the legend on the PCA plot to be
+
+***Output (what you will get):***
+- A visualization of your normalized data
+- Various PCA plots that contain the same data, just graphed in a few different ways. See what you like best.
+- A 3D html PCA plot that opens into an interactive webpage that also allows you to take screen captures at desired angles of viewing the 3D plot
+
+***What you can adjust:***
+- Adjust the color scheme however you like, we try to keep the same color scheme throughout a paper, so just ask whoever the lead on your paper is what colors they want you to use
+e.g in this part of the code:
+
+ scale_color_manual(values = c("#D4D4D4", "#6D82FF", "#EE60FF", "orange")) +
+  scale_fill_manual(values = c("#D4D4D4", "#6D82FF", "#EE60FF", "orange"))
+  
+The numbers are hex codes which you can find for any shade of color online (https://htmlcolorcodes.com/). It is important that you have the same amount of unique colors as groups in the experiment, or the graph won't plot correctly.
+
+Here is the initial data processing and exploring:
+```{r}
+# Load libraries
+library(ggplot2)
+library(dplyr)
+library(plotly)
+```
+
+
+```{r}
+# To start, read in counts
+counts <- read.csv(file = "Normalized_counts/normalized_counts.csv",
+                   header = TRUE, 
+                   row.names = 1)
+
+# If you were reading in counts from your own data straight from tximport, you would read it in with a command such as:txi <- readRDS("data_tximport.RDS")counts <- txi$counts
+
+# Load in sample metadata
+metadata <- read.csv(file = "metadata.csv",
+                     header = TRUE, 
+                     row.names = 1)
+
+###
+
+# In order to make sure each sample is annotated with the correct information, we need to define our groups/treatments and set these as factors.
+Group <- factor(metadata$Group)
+Replicate <- factor(metadata$Replicate)
+
+
+# If you only have a few samples, don't have a metadata file, and know what order everything is in, you can just write out the factor assignment
+# Ex. If you have 6 samples and you know the first 3 are from donor A and the second 3 are from donor B, you can write:
+# Donor <- factor(c("A", "A", "A", "B", "B", "B"))
+# OR
+# Donor <- factor(c(rep("A", 3), rep("B", 3)))
+
+groups <- data.frame(Sample = rownames(metadata), Group, Replicate)
+
+# Check it out to make sure everything is in the same order as your samples in counts
+cbind(groups, colnames(counts))
+# Looks good!
+
+# Let's rename the counts columns to something more informative
+groups$ColNames <- paste(groups$Group, groups$Replicate, 
+                         sep = "_")
+colnames(counts) <- groups$ColNames
+colnames(counts)
+
+
+# Let's take a look at our data!
+head(counts)
+
+# How many genes and samples do we have?
+dim(counts) # 22,560 genes and 16 samples
+
+###
+
+# Let's start looking at technical variation within our data
+
+# Create output directory for plots if it doesn't exist
+plot_dir <- "Plots/Exploratory_data"
+dir.create(plot_dir, recursive = TRUE, showWarnings = FALSE)
+
+# Total counts per sample (library size)
+png(file.path(plot_dir, "library_size_barplot.png"),
+    width = 1200, height = 800, res = 150)
+barplot(colSums(counts), las = 2,
+        main = "Library Size per Sample",
+        ylab = "Total Counts")
+dev.off()
+
+barplot(colSums(counts), las = 2,
+        main = "Library Size per Sample",
+        ylab = "Total Counts")
+# We can see a lot of variation in library sizes between our samples (this is normal as it hasn't been dealt with yet)
+
+# -----------------------------
+
+# Are there any systematic differences in total counts by group?
+# Total counts by group
+png(file.path(plot_dir, "library_size_by_group_boxplot.png"),
+    width = 1200, height = 800, res = 150)
+boxplot(colSums(counts) ~ Group,
+        main = "Library Size by Group",
+        ylab = "Total Counts")
+dev.off()
+
+boxplot(colSums(counts) ~ Group,
+        main = "Library Size by Group",
+        ylab = "Total Counts")
+# No significant differences (don't get fooled by the scale)
+
+# -----------------------------
+
+# Many stats tests assume a normal distribution of data. Do our raw counts look normally distributed?
+# Distribution of raw counts
+png(file.path(plot_dir, "raw_count_distribution.png"),
+    width = 1200, height = 800, res = 150)
+hist(log2(rowSums(counts)),
+     main = "Distribution of Raw Counts (log2)",
+     xlab = "log2 Total Counts")
+dev.off()
+
+hist(log2(rowSums(counts)),
+     main = "Distribution of Raw Counts (log2)",
+     xlab = "log2 Total Counts")
+# Not normally distributed (again this is expected).
+
+# -----------------------------
+
+# Lack of normality is partly driven by lowly expressed genes (drives the tail towards the left)
+# Excluding low abundance genes
+MinVals <- apply(counts, 1, min) # Find the minimum value in each row
+sum(MinVals == 0) # We have 6868 genes with 0 gene counts
+Exp <- counts[MinVals > 0, ] # Remove rows (transcripts) with zero counts
+
+# Log2 transformation to get it all normally distributed
+ExpLog2 <- log2(Exp)
+
+png(file.path(plot_dir, "expressed_genes_log2_distribution.png"),
+    width = 1200, height = 800, res = 150)
+hist(rowMeans(ExpLog2),
+     xlab = "Counts (log2)",
+     main = "Expressed Genes")
+dev.off()
+
+hist(rowMeans(ExpLog2),
+     xlab = "Counts (log2)",
+     main = "Expressed Genes")
+# Looks much better now
+
+# -----------------------------
+
+# Now let's take a look at these counts across our samples 
+# Plot "raw" (our log2 transformed) sample counts
+png(file.path(plot_dir, "log2_counts_boxplot.png"),
+    width = 1200, height = 800, res = 150)
+boxplot(ExpLog2,
+        ylab = "log2 counts",
+        main = "Raw RNA-Seq Counts",
+        las = 2)
+dev.off()
+
+boxplot(ExpLog2,
+        ylab = "log2 counts",
+        main = "Raw RNA-Seq Counts",
+        las = 2)
+# Check here to see an even distribution between samples, this means the data was normalized well during the DESeq2 step in the previous script
+
+# -----------------------------
+
+# Lets see how samples cluster together
+NormDist <- dist(t(ExpLog2), method = "euclidean") # Dist calculates distances between rows, use t() to transpose
+
+png(file.path(plot_dir, "sample_clustering_hclust.png"),
+    width = 1200, height = 800, res = 150)
+plot(hclust(NormDist, method = "average"),
+     main = "Hierarchical Clustering of Samples")
+dev.off()
+
+plot(hclust(NormDist, method = "average"),
+     main = "Hierarchical Clustering of Samples")
+# Ideally, should be clustering based on the experimental conditions
+```
+How does the data look?
+
+********************************************************************************
+
+Here is the PCA plot. It is very customizable.
+
+```{r}
+# Assuming NormDist is your normalized data and Group is a factor with group information
+# Perform PCA
+PCA <- prcomp(t(NormDist)) # t = transpose
+
+# Calculate the percentage variance explained by each PC (This is generated by the prcomp function and is stored in the PCA object)
+var_explained <- (PCA$sdev^2) / sum(PCA$sdev^2) * 100  # Square the standard deviations and divide by total variance
+
+# Create a data frame with PCA results and group information
+pca_data <- data.frame(PCA$x, Group = Group)
+
+# Reorder the Group factor levels so they appear in the right order in the figure legend
+pca_data$Group <- factor(pca_data$Group,
+                         levels = c("Membrane", "Blood"),
+                         labels = c("Membrane", "Blood"))
+
+# Create a ggplot for PCA
+pca_plot <- ggplot(pca_data, aes(x = PC1, y = PC2, color = Group)) +
+  geom_point(size = 6, alpha = 0.7, shape = 16) +  # Add points with transparency (alpha) for better overlap handling
+  labs(
+    title = "PCA Plot", 
+    x = paste0("PC1 (", round(var_explained[1], 2), "%)"), 
+    y = paste0("PC2 (", round(var_explained[2], 2), "%)")
+  ) +
+  theme_bw(base_size = 14) +  # Minimal theme with larger font size (you can look up all the themes online)
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),  # Center title and make it bold
+    axis.title = element_text(size = 12),  # Bold axis titles
+    axis.text = element_text(size = 12),  # Size for axis text
+    legend.title = element_text(size = 14),  # Increase legend title size
+    legend.text = element_text(size = 12),  # Increase legend text size
+    legend.position = "right",  # Place legend at the right
+    legend.box = "vertical",  # Make the legend vertical
+    legend.key = element_blank()  # Remove background color of legend keys
+  ) +
+  guides(color = guide_legend(title = NULL)) +  # Remove legend title 
+  scale_color_manual(values = c("#880808", "#7F00FF"))  # Customize colors if needed
+
+# Display the plot
+print(pca_plot)
+
+# Save the plot (can rename for each project)
+if (!dir.exists("Plots")) {
+  dir.create("Plots")
+}
+ggsave(filename = "Plots/PCA_plot_pub_quality.png", plot = pca_plot, width = 8, height = 5, dpi = 300)
+```
+
+---
+
+I wanted to see if I could encircle the different groups to make them pop out
+```{r}
+# Function to compute convex hull for each group
+find_hull <- function(df) df[chull(df$PC1, df$PC2), ]
+
+# Compute hulls for each group
+hulls <- pca_data %>%
+  group_by(Group) %>%
+  do(find_hull(.))
+
+# Create a ggplot for PCA with convex hulls
+pca_plot <- ggplot(pca_data, aes(x = PC1, y = PC2, color = Group, fill = Group)) +
+  geom_polygon(data = hulls, aes(fill = Group), alpha = 0.2, color = NA) +  # convex hulls
+  geom_point(size = 6, alpha = 0.7, shape = 16) +  
+  labs(
+    title = "PCA Plot", 
+    x = paste0("PC1 (", round(var_explained[1], 2), "%)"), 
+    y = paste0("PC2 (", round(var_explained[2], 2), "%)")
+  ) +
+  theme_bw(base_size = 14) +  
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 12),
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 12),
+    legend.position = "right",
+    legend.box = "vertical",
+    legend.key = element_blank()
+  ) +
+  guides(color = guide_legend(title = NULL), fill = guide_legend(title = NULL)) +  # consistent legend
+  scale_color_manual(values = c("#880808", "#7F00FF")) +
+  scale_fill_manual(values = c("#880808", "#7F00FF"))
+
+# Display the plot
+print(pca_plot)
+
+# Save the plot
+if (!dir.exists("Plots")) {
+  dir.create("Plots")
+}
+ggsave(filename = "Plots/PCA_plot_pub_quality_Gates.png", plot = pca_plot, width = 8, height = 5, dpi = 300)
+
+```
+It is difficult to see the ploygons when the groups are so tightly clustered
+
+---
+
+A statistical way to draw ellipses around groups:
+```{r}
+# PCA plot with statistical ellipses
+pca_plot <- ggplot(pca_data, aes(x = PC1, y = PC2, color = Group, fill = Group)) +
+  stat_ellipse(geom = "polygon", alpha = 0.2, color = NA, level = 0.95) +  # 95% confidence ellipses
+  geom_point(size = 6, alpha = 0.7, shape = 16) +  
+  labs(
+    title = "PCA Plot", 
+    x = paste0("PC1 (", round(var_explained[1], 2), "%)"), 
+    y = paste0("PC2 (", round(var_explained[2], 2), "%)")
+  ) +
+  theme_bw(base_size = 14) +  
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 12),
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 12),
+    legend.position = "right",
+    legend.box = "vertical",
+    legend.key = element_blank()
+  ) +
+  guides(color = guide_legend(title = NULL), fill = guide_legend(title = NULL)) +
+  scale_color_manual(values = c("#880808", "#7F00FF")) +
+  scale_fill_manual(values = c("#880808", "#7F00FF"))
+
+# Display the plot
+print(pca_plot)
+
+# Save the plot
+if (!dir.exists("Plots")) {
+  dir.create("Plots")
+}
+ggsave(filename = "Plots/PCA_plot_pubqual_ellipses.png", plot = pca_plot, width = 8, height = 5, dpi = 300)
+
+```
+It looks like this statistical ellipse method may not work when only 3 samples are in a group
+
+
+********************************************************************************
+
+
+Here is a script for an interactive 3D plot that includes PC3 in case you want to have a look. It generates an interactive html file that you can take screen captures of.
+```{r}
+pca_plot_3d <- plot_ly(
+  data = pca_data,
+  x = ~PC1,
+  y = ~PC2,
+  z = ~PC3,
+  color = ~Group,
+  colors = c("#880808", "#7F00FF"),
+  type = "scatter3d",
+  mode = "markers",
+  marker = list(
+    size = 7,
+    opacity = 0.7,
+    symbol = "circle",
+    line = list(width = 0)
+  )
+) %>%
+  layout(
+    title = list(
+      text = "<b>PCA Plot</b>",
+      x = 0.5,
+      font = list(size = 18)
+    ),
+    scene = list(
+      bgcolor = "white",
+      xaxis = list(
+        title = paste0("PC1 (", round(var_explained[1], 2), "%)"),
+        showline = TRUE,
+        linewidth = 2,
+        linecolor = "black",
+        zeroline = TRUE,
+        tickfont = list(size = 12),
+        titlefont = list(size = 14)
+      ),
+      yaxis = list(
+        title = paste0("PC2 (", round(var_explained[2], 2), "%)"),
+        showline = TRUE,
+        linewidth = 2,
+        linecolor = "black",
+        zeroline = TRUE,
+        tickfont = list(size = 12),
+        titlefont = list(size = 14)
+      ),
+      zaxis = list(
+        title = paste0("PC3 (", round(var_explained[3], 2), "%)"),
+        showline = TRUE,
+        linewidth = 2,
+        linecolor = "black",
+        zeroline = TRUE,
+        tickfont = list(size = 12),
+        titlefont = list(size = 14)
+      )
+    ),
+    legend = list(
+      x = 1.02,
+      y = 0.8,
+      font = list(size = 12),
+      bgcolor = "rgba(255,255,255,0)",
+      borderwidth = 0
+    ),
+    margin = list(l = 0, r = 120, b = 0, t = 60)
+  )
+
+pca_plot_3d
+
+# Save the plot as a html device that you can then position and snap a png of
+htmlwidgets::saveWidget(
+  pca_plot_3d,
+  file = "Plots/PCA_plot_3D.html"
+)
+```
+
+
+********************************************************************************
+
+
+```{r}
+sessionInfo()
+
+# Create filename with date prefix
+filename <- paste0(Sys.Date(), "_sessionInfo.txt")
+
+# Save sessionInfo output
+capture.output(sessionInfo(), file = filename)
+
+```

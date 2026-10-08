@@ -1,0 +1,7 @@
+Sample,Group,Replicate,Risk_Stratification
+S1,Membrane,96,Low
+S2,Blood,96,Low
+S3,Membrane,97,High
+S4,Blood,97,High
+S5,Membrane,95,High
+S6,Blood,95,High

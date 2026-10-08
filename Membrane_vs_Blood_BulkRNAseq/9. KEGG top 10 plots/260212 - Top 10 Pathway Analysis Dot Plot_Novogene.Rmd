@@ -1,0 +1,127 @@
+---
+title: "260219 - Top 10 Pathway Analysis Dot Plot_Novogene"
+output: html_notebook
+---
+***Purpose:***
+This script is designed to generate publication quality dot plots for pathway enrichment analysis. It is designed to loop through many spreadsheets at once so you can look at many ontology databases or comparisons in one go.
+
+This script uses the results spreadsheets that are obtained from the '8. KEGG pathway analysis'.
+
+***Important steps:***
+1. Copy and paste the combined results spreadsheets from the previous GO enrichment analysis script straight into the Result_sheets folder. These are the .xlsx files that end in "_combined.xlsx". There should be one for each group comparison you are making.
+2. That should be it, just press run and it is pretty quick usually
+
+***Output (what you will get):***
+- You get a folder per comparison. Inside will be a dotplot of the top 10 pathways from each combination of up/down/all and BP/MF/CC. Up will be red dots and down will be blue dots, the all genes set will be blue and red.
+
+***What you can adjust:***
+- You can change how many pathways are plotted and how these are selected (current is top 10 based on padj)
+- You can change the colors of the dots in the plot
+
+Here is the full script:
+```{r}
+# Load necessary libraries
+library(tidyverse) # This package is used for data manipulation and visualization
+library(openxlsx)
+
+# Define the path to your directories
+input_folder <- "Result_sheets"  # Folder containing the input xlsx files with enrichment data
+output_folder <- "Plots"         # Folder where the generated plots will be saved
+
+# Define a function to create and save dot plots for a specific GeneSet and Ontology combination
+create_dotplot <- function(data, gene_set, file_name) {
+  
+  # Filter and process the data
+  top_pathways <- data %>%
+    filter(GeneSet == gene_set) %>%
+    arrange(p.adjust) %>%
+    slice_head(n = 10) # Adjust if you want more than 10 pathways in the plot
+  
+  # Skip plotting if no data found
+if (nrow(top_pathways) == 0) return(NULL)
+  
+# Safely modify Description
+top_pathways <- top_pathways %>%
+  mutate(Description = ifelse(nchar(Description) > 60,     
+                              paste0(substr(Description, 1, 57), "..."), 
+                              Description))
+
+  # Define color scale based on GeneSet
+  color_scale <- if (gene_set == "Upregulated_genes") {
+    scale_color_continuous(low = "#E34234", high = "lightpink", name = "padj",
+                           labels = scales::label_scientific(digits = 1),
+                           guide = guide_colorbar(order = 1))
+    
+  } else if (gene_set == "Downregulated_genes") {
+    scale_color_continuous(low = "blue", high = "lightblue", name = "padj",
+                           labels = scales::label_scientific(digits = 1),
+                           guide = guide_colorbar(order = 1))
+    
+  } else {
+    scale_color_continuous(low = "#E34234", high = "#4682B4", name = "padj",
+                           labels = scales::label_scientific(digits = 1),
+                           guide = guide_colorbar(order = 1))
+  }
+
+  # Create the plot
+  plot <- ggplot(top_pathways, aes(x = GeneRatioDecimal, y = reorder(Description, GeneRatioDecimal), 
+                                   size = Count, color = p.adjust)) +
+    geom_point() +
+    color_scale +  # Apply the selected color scale
+    labs(x = "GeneRatio", title = paste("KEGG", "_", gene_set)) +
+    theme_bw() +
+    theme(axis.title.y = element_blank(),
+          axis.text.y = element_text(size = 8, lineheight = 0.9)) +
+    scale_y_discrete(labels = scales::label_wrap(25)) +
+    guides(size = guide_legend(order = 2))
+
+  # Ensure output folder exists
+  dir.create(file.path(output_folder, file_name), recursive = TRUE, showWarnings = FALSE)
+  
+  # Save the plot
+  output_file <- paste0(output_folder, "/", file_name, "/", gene_set, "_KEGG", "_dotplot.png")
+  ggsave(output_file, plot = plot, width = 5.3, height = 4)
+}
+
+# Loop through each .xlsx file in the Result_sheets folder
+xlsx_files <- list.files(input_folder, pattern = "\\.xlsx$", full.names = TRUE)  # Get the list of .xlsx files
+for (file_path in xlsx_files) {
+  
+  # Read the data from the current .xlsx file
+  master <- read.xlsx(file_path)
+  
+  # Add a new column to convert GeneRatio from a string (e.g., "2/4") to a decimal (e.g., 0.5)
+  master <- master %>%
+    mutate(GeneRatioDecimal = as.numeric(sapply(strsplit(as.character(GeneRatio), "/"), 
+                                                function(x) as.numeric(x[1]) / as.numeric(x[2]))))
+  
+  # Extract the base name of the current xlsx file (without the file extension)
+  base_name <- tools::file_path_sans_ext(basename(file_path))
+  
+  # Define the GeneSets and Ontologies available in the data (these values will vary by file)
+  gene_sets <- unique(master$GeneSet)   # Extract unique GeneSets (e.g., All_genes, Upregulated_genes, Downregulated_genes)
+  
+  # Generate dot plots for each combination of GeneSet and Ontology
+  for (gene_set in gene_sets) {  # Loop through each GeneSet (All_genes, Upregulated, Downregulated)
+      # Call the create_dotplot function for the current combination of GeneSet and Ontology
+      create_dotplot(master, gene_set, base_name)
+  }
+}
+```
+
+
+********************************************************************************
+
+
+I like to finish with the session info command as it lists all the versions that were used at the time of analysis. The other lines will save the output as a text file with the date that the command was run.
+```{r}
+sessionInfo()
+
+# Create filename with date prefix
+filename <- paste0(Sys.Date(), "_sessionInfo.txt")
+
+# Save sessionInfo output
+capture.output(sessionInfo(), file = filename)
+
+```
+ 

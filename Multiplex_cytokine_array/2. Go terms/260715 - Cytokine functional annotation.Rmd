@@ -1,0 +1,376 @@
+---
+title: "260715 - Cytokine functional annotation"
+author: "Mark Renton"
+date: "2026-07-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**Purpose:**
+To give functional annotations to the 'top' expressed cytokines (those that had all samples higher than the LLoQ). Then see which functions are highly represented, without any statistical comparison, all descriptive.
+
+```{r}
+suppressPackageStartupMessages({library(httr); library(jsonlite); library(ggplot2)})
+
+# ---- 0. paths -------------------------------------------------------------
+in_csv  <- "csdh_heatmap_data.csv"          # input (this folder)
+out_top <- "top_analytes.csv"               # the 5/5-QUANT set + genes
+out_pw  <- "pathway_counts_reactome.csv"    # ranked pathway table
+out_fig <- "pathway_classification"         # figure basename (.png / .pdf)
+
+# ---- 1. read data ---------------------------------------------------------
+df <- read.csv(in_csv, stringsAsFactors = FALSE)
+
+# ---- 2. analyte -> HGNC gene symbol (one representative symbol each) -------
+gene_map <- c(
+  "EGF"="EGF","FGF-2"="FGF2","PDGF-AA"="PDGFA","PDGF-AB/BB"="PDGFB","TGFa"="TGFA","VEGF-A"="VEGFA",
+  "MMP-2"="MMP2","MMP-9"="MMP9",
+  "Eotaxin"="CCL11","Fractalkine"="CX3CL1","GROa"="CXCL1","IL-8"="CXCL8","IP-10"="CXCL10",
+  "MCP-1"="CCL2","MCP-3"="CCL7","MDC"="CCL22","MIG"="CXCL9","MIP-1a"="CCL3","MIP-1b"="CCL4",
+  "IFNa2"="IFNA2","IFNy"="IFNG","IL-1a"="IL1A","IL-1b"="IL1B","IL-2"="IL2","IL-3"="IL3","IL-6"="IL6",
+  "IL-12p40"="IL12B","IL-12p70"="IL12A","IL-15"="IL15","IL-17A"="IL17A","IL-17E/IL-25"="IL25",
+  "IL-17F"="IL17F","IL-18"="IL18","TNFa"="TNF","TNFb"="LTA",
+  "IL-1RA"="IL1RN","IL-4"="IL4","IL-5"="IL5","IL-9"="IL9","IL-10"="IL10","IL-13"="IL13",
+  "IL-22"="IL22","IL-27"="IL27",
+  "sCD40L"="CD40LG","FLT-3L"="FLT3LG","G-CSF"="CSF3","GM-CSF"="CSF2","IL-7"="IL7","M-CSF"="CSF1")
+
+# ---- 3. derive the 'top' set: QUANT in every patient ----------------------
+n_pat <- length(unique(df$patient))
+agg <- aggregate(status ~ analyte + category, data = df,
+                 FUN = function(s) sum(s == "QUANT"))
+names(agg)[names(agg) == "status"] <- "n_quant"
+agg$n_pat <- n_pat
+top <- agg[agg$n_quant == n_pat, ]
+top$gene <- gene_map[top$analyte]
+
+if (any(is.na(top$gene)))
+  stop("Unmapped analyte(s): ", paste(top$analyte[is.na(top$gene)], collapse = ", "))
+
+top <- top[order(top$analyte), c("analyte","gene","category","n_quant","n_pat")]
+write.csv(top, out_top, row.names = FALSE)
+genes <- unique(top$gene)
+cat(sprintf("Top set (QUANT in all %d patients): %d analytes\n", n_pat, nrow(top)))
+cat(paste(genes, collapse = ", "), "\n\n")
+
+# ---- 4. query Reactome: pathways containing these genes -------------------
+# AnalysisService returns every pathway that contains >=1 submitted gene,
+# with entities$found (count) and entities$total (pathway size).
+url <- paste0("https://reactome.org/AnalysisService/identifiers/projection",
+              "?interactors=false&pageSize=500&page=1",
+              "&sortBy=ENTITIES_FOUND&order=DESC&resource=TOTAL&includeDisease=true")
+
+resp <- POST(url,
+             body = paste(genes, collapse = "\n"),
+             content_type("text/plain"),
+             accept_json(),
+             timeout(90))
+stop_for_status(resp)
+res <- fromJSON(content(resp, "text", encoding = "UTF-8"), flatten = TRUE)
+
+pw <- res$pathways
+if (is.null(pw) || length(pw) == 0) stop("Reactome returned no pathways.")
+
+# ---- 5. build ranked table with the ratio column --------------------------
+out <- data.frame(
+  pathway_name = pw$name,
+  reactome_id  = pw$stId,
+  n_genes      = pw$entities.found,
+  size         = pw$entities.total,
+  stringsAsFactors = FALSE)
+out$ratio <- round(out$n_genes / out$size, 4)
+
+# primary ranking = raw count; ties broken by specificity ratio
+out <- out[order(-out$n_genes, -out$ratio), ]
+rownames(out) <- NULL
+
+not_found <- if (!is.null(res$identifiersNotFound)) res$identifiersNotFound else NA
+cat(sprintf("Genes submitted: %d   not mapped by Reactome: %s\n",
+            length(genes), as.character(not_found)))
+cat(sprintf("Pathways containing >=1 top gene: %d\n\n", nrow(out)))
+
+cat("=== Top 25 pathways by number of top-expressed genes ===\n")
+print(head(out[, c("n_genes","size","ratio","pathway_name")], 25), row.names = FALSE)
+
+write.csv(out, out_pw, row.names = FALSE)
+
+# ---- 6. figure: top 10 pathways by specificity ratio ----------------------
+# Bar length = ratio (fraction of the pathway made up of your top cytokines).
+# Both requested numbers appear on each bar: the ratio and the cytokine count
+# (n / size), and the count is also encoded by fill colour.
+top10 <- head(out[order(-out$ratio, -out$n_genes), ], 10)
+wrap  <- function(x, w = 40) sapply(x, function(s) paste(strwrap(s, w), collapse = "\n"))
+top10$label_y <- factor(wrap(top10$pathway_name),
+                        levels = rev(wrap(top10$pathway_name)))   # keep rank order
+top10$bar_lab <- sprintf("ratio %.2f  (%d/%d)", top10$ratio, top10$n_genes, top10$size)
+
+p <- ggplot(top10, aes(x = ratio, y = label_y, fill = n_genes)) +
+  geom_col(width = 0.72) +
+  geom_text(aes(label = bar_lab), hjust = -0.05, size = 3.2) +
+  scale_fill_gradient(low = "#FBCEB1", high = "#EC5800", name = "cytokines\nin pathway") +
+  scale_x_continuous(expand = expansion(mult = c(0, 0.28))) +
+  labs(title = "cSDH top-expressed cytokines: pathway classification",
+       subtitle = sprintf("Top 10 Reactome pathways by specificity ratio (n genes / pathway size); %d/%d-QUANT analytes",
+                          n_pat, n_pat),
+       x = "Cytokine ratio (cytokines in pathway/total pathway size)", y = NULL) +
+  theme_bw(base_size = 11) +
+  theme(panel.grid = element_blank(),
+        plot.title = element_text(face = "bold"))
+
+ggsave(paste0(out_fig, ".png"), p, width = 9.5, height = 5.5, dpi = 300)
+ggsave(paste0(out_fig, ".pdf"), p, width = 9.5, height = 5.5)
+
+cat(sprintf("\nWritten: %s  (full ranked table)\n         %s  (top set + gene map)\n         %s.png / .pdf  (figure)\n",
+            out_pw, out_top, out_fig))
+
+p
+```
+
+Same, but for GO BP:
+```{r}
+suppressPackageStartupMessages({
+  library(org.Hs.eg.db); library(GO.db); library(AnnotationDbi); library(ggplot2)
+})
+
+# ---- 0. paths -------------------------------------------------------------
+in_csv  <- "csdh_heatmap_data.csv"          # input (this folder)
+out_top <- "top_analytes.csv"               # the 5/5-QUANT set + genes
+out_pw  <- "gobp_counts.csv"                # ranked GO:BP table
+out_fig <- "gobp_classification"            # figure basename (.png / .pdf)
+min_size_fig <- 10                          # min term size shown in the figure
+                                            # (GO has many tiny leaf terms that
+                                            #  would otherwise dominate a ratio
+                                            #  ranking; set to 0 to disable)
+
+# ---- 1. read data ---------------------------------------------------------
+df <- read.csv(in_csv, stringsAsFactors = FALSE)
+
+# ---- 2. analyte -> HGNC gene symbol (one representative symbol each) -------
+gene_map <- c(
+  "EGF"="EGF","FGF-2"="FGF2","PDGF-AA"="PDGFA","PDGF-AB/BB"="PDGFB","TGFa"="TGFA","VEGF-A"="VEGFA",
+  "MMP-2"="MMP2","MMP-9"="MMP9",
+  "Eotaxin"="CCL11","Fractalkine"="CX3CL1","GROa"="CXCL1","IL-8"="CXCL8","IP-10"="CXCL10",
+  "MCP-1"="CCL2","MCP-3"="CCL7","MDC"="CCL22","MIG"="CXCL9","MIP-1a"="CCL3","MIP-1b"="CCL4",
+  "IFNa2"="IFNA2","IFNy"="IFNG","IL-1a"="IL1A","IL-1b"="IL1B","IL-2"="IL2","IL-3"="IL3","IL-6"="IL6",
+  "IL-12p40"="IL12B","IL-12p70"="IL12A","IL-15"="IL15","IL-17A"="IL17A","IL-17E/IL-25"="IL25",
+  "IL-17F"="IL17F","IL-18"="IL18","TNFa"="TNF","TNFb"="LTA",
+  "IL-1RA"="IL1RN","IL-4"="IL4","IL-5"="IL5","IL-9"="IL9","IL-10"="IL10","IL-13"="IL13",
+  "IL-22"="IL22","IL-27"="IL27",
+  "sCD40L"="CD40LG","FLT-3L"="FLT3LG","G-CSF"="CSF3","GM-CSF"="CSF2","IL-7"="IL7","M-CSF"="CSF1")
+
+# ---- 3. derive the 'top' set: QUANT in every patient ----------------------
+n_pat <- length(unique(df$patient))
+agg <- aggregate(status ~ analyte + category, data = df,
+                 FUN = function(s) sum(s == "QUANT"))
+names(agg)[names(agg) == "status"] <- "n_quant"
+agg$n_pat <- n_pat
+top <- agg[agg$n_quant == n_pat, ]
+top$gene <- gene_map[top$analyte]
+if (any(is.na(top$gene)))
+  stop("Unmapped analyte(s): ", paste(top$analyte[is.na(top$gene)], collapse = ", "))
+top <- top[order(top$analyte), c("analyte","gene","category","n_quant","n_pat")]
+write.csv(top, out_top, row.names = FALSE)
+genes <- unique(top$gene)
+cat(sprintf("Top set (QUANT in all %d patients): %d analytes\n", n_pat, nrow(top)))
+cat(paste(genes, collapse = ", "), "\n\n")
+
+# ---- 4. map symbols -> Entrez, then count genes per GO:BP term ------------
+eg <- AnnotationDbi::mapIds(org.Hs.eg.db, keys = genes, column = "ENTREZID",
+                            keytype = "SYMBOL", multiVals = "first")
+not_found <- names(eg)[is.na(eg)]
+Q <- unique(as.character(eg[!is.na(eg)]))    # query Entrez IDs
+
+# GO term -> all annotated human Entrez genes (annotations propagated up the
+# hierarchy; this is the standard 'gene set' definition used for GO analysis)
+go2eg <- AnnotationDbi::as.list(org.Hs.egGO2ALLEGS)
+go2eg <- lapply(go2eg, function(x) unique(as.character(x)))
+
+# keep Biological Process terms only
+onto <- suppressMessages(AnnotationDbi::select(
+  GO.db, keys = names(go2eg), columns = c("ONTOLOGY","TERM"), keytype = "GOID"))
+onto <- onto[!duplicated(onto$GOID), ]
+bp_ids <- onto$GOID[onto$ONTOLOGY == "BP"]
+go2eg <- go2eg[names(go2eg) %in% bp_ids]
+
+# ---- 5. build ranked table with the ratio column --------------------------
+n_genes <- vapply(go2eg, function(g) length(intersect(g, Q)), integer(1))
+size    <- vapply(go2eg, length, integer(1))
+keep    <- n_genes >= 1
+
+out <- data.frame(
+  go_id   = names(go2eg)[keep],
+  term    = onto$TERM[match(names(go2eg)[keep], onto$GOID)],
+  n_genes = n_genes[keep],
+  size    = size[keep],
+  stringsAsFactors = FALSE)
+out$ratio <- round(out$n_genes / out$size, 4)
+
+# primary ranking = raw count; ties broken by specificity ratio
+out <- out[order(-out$n_genes, -out$ratio), ]
+rownames(out) <- NULL
+
+cat(sprintf("Genes submitted: %d   not mapped to Entrez: %s\n",
+            length(genes),
+            if (length(not_found)) paste(not_found, collapse = ", ") else "0"))
+cat(sprintf("GO:BP terms containing >=1 top gene: %d\n\n", nrow(out)))
+
+cat("=== Top 25 GO:BP terms by number of top-expressed genes ===\n")
+print(head(out[, c("n_genes","size","ratio","term")], 25), row.names = FALSE)
+
+write.csv(out, out_pw, row.names = FALSE)
+
+# ---- 6. figure: top 10 GO:BP terms by specificity ratio -------------------
+# Bar length = ratio; text prints ratio and the raw count (n / size); the count
+# is also encoded by fill colour. Terms below min_size_fig are excluded so the
+# ratio ranking is not swamped by tiny leaf terms.
+fig <- out[out$size >= min_size_fig, ]
+top10 <- head(fig[order(-fig$ratio, -fig$n_genes), ], 10)
+wrap  <- function(x, w = 40) sapply(x, function(s) paste(strwrap(s, w), collapse = "\n"))
+top10$label_y <- factor(wrap(top10$term),
+                        levels = rev(wrap(top10$term)))   # keep rank order
+top10$bar_lab <- sprintf("ratio %.2f  (%d/%d)", top10$ratio, top10$n_genes, top10$size)
+
+p <- ggplot(top10, aes(x = ratio, y = label_y, fill = n_genes)) +
+  geom_col(width = 0.72) +
+  geom_text(aes(label = bar_lab), hjust = -0.05, size = 3.2) +
+  scale_fill_gradient(low = "#FBCEB1", high = "#EC5800", name = "cytokines\nin term") +
+  scale_x_continuous(expand = expansion(mult = c(0, 0.28))) +
+  labs(title = "cSDH top-expressed cytokines: GO Biological Process classification",
+       subtitle = sprintf("Top 10 GO:BP terms by specificity ratio (n genes / term size, size >= %d); %d/%d-QUANT analytes",
+                          min_size_fig, n_pat, n_pat),
+       x = "Cytokine ratio (cytokines in term/total term size)", y = NULL) +
+  theme_bw(base_size = 11) +
+  theme(panel.grid = element_blank(),
+        plot.title = element_text(face = "bold"))
+
+ggsave(paste0(out_fig, ".png"), p, width = 9.5, height = 5.5, dpi = 300)
+ggsave(paste0(out_fig, ".pdf"), p, width = 9.5, height = 5.5)
+
+cat(sprintf("\nWritten: %s  (full ranked table)\n         %s  (top set + gene map)\n         %s.png / .pdf  (figure)\n",
+            out_pw, out_top, out_fig))
+p
+```
+
+Try Hallmark next:
+```{r}
+suppressPackageStartupMessages({library(msigdbr); library(ggplot2)})
+
+# ---- 0. paths -------------------------------------------------------------
+in_csv  <- "csdh_heatmap_data.csv"          # input (this folder)
+out_top <- "top_analytes.csv"               # the 5/5-QUANT set + genes
+out_pw  <- "hallmark_counts.csv"            # ranked Hallmark table
+out_fig <- "hallmark_classification"        # figure basename (.png / .pdf)
+
+# ---- 1. read data ---------------------------------------------------------
+df <- read.csv(in_csv, stringsAsFactors = FALSE)
+
+# ---- 2. analyte -> HGNC gene symbol (one representative symbol each) -------
+gene_map <- c(
+  "EGF"="EGF","FGF-2"="FGF2","PDGF-AA"="PDGFA","PDGF-AB/BB"="PDGFB","TGFa"="TGFA","VEGF-A"="VEGFA",
+  "MMP-2"="MMP2","MMP-9"="MMP9",
+  "Eotaxin"="CCL11","Fractalkine"="CX3CL1","GROa"="CXCL1","IL-8"="CXCL8","IP-10"="CXCL10",
+  "MCP-1"="CCL2","MCP-3"="CCL7","MDC"="CCL22","MIG"="CXCL9","MIP-1a"="CCL3","MIP-1b"="CCL4",
+  "IFNa2"="IFNA2","IFNy"="IFNG","IL-1a"="IL1A","IL-1b"="IL1B","IL-2"="IL2","IL-3"="IL3","IL-6"="IL6",
+  "IL-12p40"="IL12B","IL-12p70"="IL12A","IL-15"="IL15","IL-17A"="IL17A","IL-17E/IL-25"="IL25",
+  "IL-17F"="IL17F","IL-18"="IL18","TNFa"="TNF","TNFb"="LTA",
+  "IL-1RA"="IL1RN","IL-4"="IL4","IL-5"="IL5","IL-9"="IL9","IL-10"="IL10","IL-13"="IL13",
+  "IL-22"="IL22","IL-27"="IL27",
+  "sCD40L"="CD40LG","FLT-3L"="FLT3LG","G-CSF"="CSF3","GM-CSF"="CSF2","IL-7"="IL7","M-CSF"="CSF1")
+
+# ---- 3. derive the 'top' set: above LLoQ in every patient ----------------------
+n_pat <- length(unique(df$patient))
+agg <- aggregate(status ~ analyte + category, data = df,
+                 FUN = function(s) sum(s == "QUANT"))
+names(agg)[names(agg) == "status"] <- "n_quant"
+agg$n_pat <- n_pat
+top <- agg[agg$n_quant == n_pat, ]
+top$gene <- gene_map[top$analyte]
+if (any(is.na(top$gene)))
+  stop("Unmapped analyte(s): ", paste(top$analyte[is.na(top$gene)], collapse = ", "))
+top <- top[order(top$analyte), c("analyte","gene","category","n_quant","n_pat")]
+write.csv(top, out_top, row.names = FALSE)
+genes <- unique(top$gene)
+cat(sprintf("Top set (QUANT in all %d patients): %d analytes\n", n_pat, nrow(top)))
+cat(paste(genes, collapse = ", "), "\n\n")
+
+# ---- 4. load Hallmark sets and count genes per set ------------------------
+# Handle both new (collection=) and old (category=) msigdbr argument names.
+hs <- tryCatch(msigdbr(species = "Homo sapiens", collection = "H"),
+               error = function(e) msigdbr(species = "Homo sapiens", category = "H"))
+sym_col <- if ("gene_symbol" %in% names(hs)) "gene_symbol" else "human_gene_symbol"
+sets <- split(hs[[sym_col]], hs$gs_name)
+sets <- lapply(sets, unique)
+
+# ---- 5. build ranked table with the ratio column --------------------------
+n_genes <- vapply(sets, function(g) length(intersect(g, genes)), integer(1))
+size    <- vapply(sets, length, integer(1))
+keep    <- n_genes >= 1
+
+out <- data.frame(
+  hallmark = names(sets)[keep],
+  n_genes  = n_genes[keep],
+  size     = size[keep],
+  stringsAsFactors = FALSE)
+out$ratio <- round(out$n_genes / out$size, 4)
+# readable label: drop the HALLMARK_ prefix, underscores -> spaces
+out$label <- tools::toTitleCase(tolower(gsub("_", " ", sub("^HALLMARK_", "", out$hallmark))))
+
+# primary ranking = raw count; ties broken by specificity ratio
+out <- out[order(-out$n_genes, -out$ratio), ]
+rownames(out) <- NULL
+
+not_found <- setdiff(genes, unique(unlist(sets)))
+cat(sprintf("Genes submitted: %d   not in any Hallmark set: %s\n",
+            length(genes),
+            if (length(not_found)) paste(not_found, collapse = ", ") else "0"))
+cat(sprintf("Hallmark sets containing >=1 top gene: %d of 50\n\n", nrow(out)))
+
+cat("=== Hallmark sets by number of top-expressed genes ===\n")
+print(head(out[, c("n_genes","size","ratio","label")], 25), row.names = FALSE)
+
+write.csv(out[, c("hallmark","label","n_genes","size","ratio")], out_pw, row.names = FALSE)
+
+# ---- 6. figure: top 10 Hallmark sets by specificity ratio -----------------
+# Bar length = ratio; text prints ratio and the raw count (n / size); count is
+# also encoded by fill colour. Hallmark sets are curated and comparably sized,
+# so no minimum-size floor is needed here.
+top10 <- head(out[order(-out$ratio, -out$n_genes), ], 10)
+wrap  <- function(x, w = 34) sapply(x, function(s) paste(strwrap(s, w), collapse = "\n"))
+top10$label_y <- factor(wrap(top10$label),
+                        levels = rev(wrap(top10$label)))   # keep rank order
+top10$bar_lab <- sprintf("(%d/%d)", top10$n_genes, top10$size)
+
+p <- ggplot(top10, aes(x = ratio, y = label_y, fill = n_genes)) +
+  geom_col(width = 0.72) +
+  geom_text(aes(label = bar_lab), hjust = -0.05, size = 3.2) +
+  scale_fill_gradient(low = "#FBCEB1", high = "#EC5800", name = "cytokines\nin set") +
+  scale_x_continuous(expand = expansion(mult = c(0, 0.30))) +
+  labs(title = "cSDH top-expressed cytokines: MSigDB Hallmark classification",
+       subtitle = sprintf("Top 10 Hallmark sets by specificity ratio (n genes / set size); %d/%d-QUANT analytes",
+                          n_pat, n_pat),
+       x = "Cytokine ratio (cytokines in set/total set size)", y = NULL) +
+  theme_bw(base_size = 11) +
+  theme(panel.grid = element_blank(),
+        plot.title = element_text(face = "bold"),
+        axis.text.y = element_text(size = 12, colour = "black", face = "bold"))   # cytokine labels)
+
+ggsave(paste0(out_fig, ".png"), p, width = 9.5, height = 5.5, dpi = 300)
+ggsave(paste0(out_fig, ".pdf"), p, width = 9.5, height = 5.5)
+
+cat(sprintf("\nWritten: %s  (full ranked table)\n         %s  (top set + gene map)\n         %s.png / .pdf  (figure)\n",
+            out_pw, out_top, out_fig))
+p
+
+```
+
+```{r}
+sessionInfo()
+
+# Create filename with date prefix
+filename <- paste0(Sys.Date(), "_sessionInfo.txt")
+
+# Save sessionInfo output
+capture.output(sessionInfo(), file = filename)
+```

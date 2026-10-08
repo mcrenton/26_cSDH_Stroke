@@ -1,0 +1,143 @@
+---
+title: "260216 - DEG Volcano Plot - Novogene"
+output: html_notebook
+---
+
+This script is for creating nice volcano plots from Bulk RNAseq data from Novogene using the spreadsheets that they provide. The idea is all you should have to do is put the provided DEG sheets into your directory, save them as .csv files and you are good to go. This script is automated in that it will do all comparisons that you want in one chunk.
+
+***Important steps:***
+1. Take all of the DEG spreadsheets of the comparisons you want to plot from the DESeq2 normalization and DEG script and place them into the "DEG_Spreadsheets" folder in this directory. They should be the .csv files that *DO NOT* say '_sig' at the end of the file name.
+2. Run the script
+
+***Output (what you will get):***
+- PNG files that contain a single volcano plot for each comparison spreadsheet that you put into the "DEG_Spreadsheets" folder 
+
+***What you can adjust:***
+- Whether you want to change the fold change threshold (e.g. you only care about fold change of >0 or <-0). If you do this, I recommend creating a whole new directory so you can keep it separate.
+- The axis range
+- horizontal and vertical intercept positions (or if you even want them)
+- colors if you want
+
+
+```{r}
+# Load the necessary libraries (install them if required)
+library(tidyverse)
+library(RColorBrewer)
+library(ggrepel)
+
+# Set theme
+theme_set(theme_classic(base_size = 20) +
+            theme(
+              axis.title.y = element_text(face = "bold", margin = margin(0,0,0,0), size = rel(1.1), color = 'black'),
+              axis.title.x = element_text(hjust = 0.5, face = "bold", margin = margin(10,0,0,0), size = rel(1.1), color = 'black'),
+              plot.title = element_text(hjust = 0.5),
+              aspect.ratio = 1.5/1 
+            ))
+
+# Create output directory if it doesn't exist
+if (!dir.exists("Plots")) {
+  dir.create("Plots")
+}
+
+# Get list of CSV files in DEG_Spreadsheets folder
+file_list <- list.files(path = "DEG_Spreadsheets", pattern = "*.csv", full.names = TRUE)
+
+# Loop through each file
+for (file in file_list) {
+  # Read the CSV file
+  master <- read.csv(file)
+  
+  # Extract file name without extension
+  file_name <- tools::file_path_sans_ext(basename(file))
+  
+  # Create DEG dataframe
+  DEG <- master[, c("gene_name", "log2FoldChange", "padj")]
+  DEG$log10_padj <- -log10(DEG$padj)
+
+  # Assign differential expression categories
+  DEG$diffexpressed <- 'NO'
+  DEG$diffexpressed[DEG$log2FoldChange > 1 & DEG$log10_padj > -log10(0.05)] <- 'UP'
+  DEG$diffexpressed[DEG$log2FoldChange < -1 & DEG$log10_padj > -log10(0.05)] <- 'DOWN'
+
+  # Generate volcano plot
+  volcano_plot <- ggplot(data = DEG, aes(x = log2FoldChange, y = log10_padj, col = diffexpressed)) +
+    geom_hline(yintercept = -log10(0.05), col = "gray", linetype = 'dashed') + # Horizontal line at padj = 0.05
+    geom_vline(xintercept = c(-1, 1), col = "gray", linetype = 'dashed') +  # Vertical lines at logFC -1 and 1
+    geom_point(size = 2, alpha = 0.7) +
+    scale_color_manual(values = c("#4682B4", "grey", "#E34234"), 
+                       labels = c("Down", "Not Sig", "Up")) + 
+    labs(color = '', 
+         x = expression("log"[2]*"FC"), y = expression("-log"[10]*"padj"))
+  
+  # Save the plot
+  ggsave(filename = paste0("Plots/VolcPlot_", file_name, ".png"), plot = volcano_plot, width = 8, height = 6, dpi = 300)
+}
+```
+
+##NOTE## 
+The above script doesn't work correctly when no DEGs are found because of the color scale that we use. Use the next script if this is the case for one of your groups.
+
+```{r}
+library(tidyverse)
+library(RColorBrewer)
+library(ggrepel)
+
+# Read in the Novogene spreadsheet
+master <- read.csv("DEG_Spreadsheets/MacDirvsMacInd_deg.csv")
+
+# Create a new dataframe that just has the gene name, Log2 fold change and padj
+DEG <- master[, c("gene_name", "log2FoldChange", "padj")]
+
+# Make a new column that calculates the -log10(padj) which is better for showing on a volcano plot (Higher number is more significant)
+DEG$log10_padj <- -log10(DEG$padj)
+
+# Create a new column that will say whether the gene is upregulated (UP) or downregulated (DOWN) or not differentially regulated (NO)
+DEG$diffexpressed <- 'NO'
+DEG$diffexpressed[DEG$log2FoldChange > 1 & DEG$log10_padj > -log10(0.05)] <- 'UP'
+DEG$diffexpressed[DEG$log2FoldChange < -1 & DEG$log10_padj > -log10(0.05)] <- 'DOWN'
+
+# Generating the volcano plot with ggplot
+
+#Setting the theme I like
+theme_set(theme_classic(base_size = 20) +
+            theme(
+              axis.title.y = element_text(face = "bold", margin = margin(0,0,0,0), size = rel(1.1), color = 'black'),
+              axis.title.x = element_text(hjust = 0.5, face = "bold", margin = margin(10,0,0,0), size = rel(1.1), color = 'black'),
+              plot.title = element_text(hjust = 0.5),
+              aspect.ratio = 1.5/1 
+            ))
+
+# Regular plot without labels_no FC exclusion
+volcano_plot <- ggplot(data = DEG, aes(x = log2FoldChange, y = log10_padj, col = diffexpressed)) +
+  geom_hline(yintercept = -log10(0.05), col = "gray", linetype = 'dashed') + # Horizontal line at padj = 0.05
+  geom_vline(xintercept = c(-1, 1), col = "gray", linetype = 'dashed') +  # Vertical lines at logFC -1 and 1
+  geom_point(size = 2, alpha = 0.7) +
+  scale_color_manual(values = "grey", 
+                     labels = "Not Sig") + 
+  coord_cartesian(ylim = c(0, 305), xlim = c(-8, 10)) + 
+  labs(color = '', 
+       x = expression("log"[2]*"FC"), y = expression("-log"[10]*"padj")) + 
+  scale_x_continuous(breaks = seq(-8, 10, 2)) +
+  scale_y_continuous(breaks = seq(0, 305, 50))
+
+# Display the plot
+print(volcano_plot)
+
+# Save the plot
+ggsave(filename = "Plots/VolcPlot_MacDirvsMacInd_deg.png", plot = volcano_plot, width = 8, height = 6, dpi = 300)
+```
+
+---
+
+I like to finish with the session info command as it lists all the versions that were used at the time of analysis. The other lines will save the output as a text file with the date that the command was run.
+```{r}
+sessionInfo()
+
+# Create filename with date prefix
+filename <- paste0(Sys.Date(), "_sessionInfo.txt")
+
+# Save sessionInfo output
+capture.output(sessionInfo(), file = filename)
+
+```
+

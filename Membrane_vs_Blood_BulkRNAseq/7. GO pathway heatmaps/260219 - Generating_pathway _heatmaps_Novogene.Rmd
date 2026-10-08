@@ -1,0 +1,174 @@
+---
+title: "260219 - Generating GO pathway heatmaps"
+output:
+  html_document:
+    df_print: paged
+---
+***Purpose:***
+The purpose of this script is to create a heatmap that displays the z-score standardized gene expression of each differentially regulated gene of a selected pathway across all samples (separated between groups). You will need two spreadsheets:
+- the pathway enrichment sheet (e.g. GO bp)
+- the DEG list
+
+***Important steps:***
+1. You need to place the same metadata you have been using for previous scripts into the directory
+2. Place the normalized counts from the very first normalization script into the "Normalized_Counts" folder inside the "Result_sheets" folder (just as you did for previous scripts)
+3. Place the same combined GOterms files that you used for the previous top 10 dotplot script into the "GOterms" folder inside the "Result_sheets" folder 
+4. Update the following (this isn't an automated script because it is all about displaying what you actually want):
+- the organism database you need (org.Hs.eg.db or org.Mm.eg.db)
+- the file names for your spreadsheets
+- the name of the pathway that you want
+- the ontology (BP, CC, or MF)
+- the group names (add and subtract as needed in two parts of the script)
+- the save file name
+
+***You will need to update the following before running again:***
+- the file names for your spreadsheets
+- the name of the pathway that you want
+- the sample names 
+- where you want the plots saved
+
+***Output (what you will get):***
+- You will get a single pdf file with a single heatmap for the pathway that you choose
+
+***What you can adjust:***
+- Can change the color scheme
+
+*NOTE*
+Have a look at how many genes are in the pathway you want to look at, often they can have around 100 genes which makes a very large plot and you may need to adjust the file save size to make it fit in a single pdf. I try to use more specific pathways that have fewer genes for a more manageable plot.
+
+Here is the full script:
+```{r}
+# Load necessary libraries
+library(ggplot2)
+library(pheatmap)
+library(dplyr)
+library(tidyr)
+library(tibble)
+library(clusterProfiler)
+library(org.Hs.eg.db) # Change for human or mouse
+library(readxl)
+
+###
+
+#Reading in the CSV files that I saved into the directory (Need to change this based on what files you are using)
+pathway_results <- read_excel("Result_sheets/GOterms/Membrane_vs_Blood_deg_GO_enrichment_results_combined.xlsx")  # Replace with your file path
+
+gene_expression_data <- read.csv("Result_sheets/Normalized_Counts/normalized_counts.csv",
+                            header = TRUE,
+                            row.names = 1)  # Replace with your file path
+
+metadata <- read.csv("metadata.csv") # Replace with your file path
+
+# Change the rownames of the metadata column to the sample names
+rownames(metadata) <- paste(metadata$Group, metadata$Replicate, 
+                         sep = "_")
+
+# Change the column names of the count data to the sample names
+colnames(gene_expression_data) <- rownames(metadata)
+
+###
+
+# Extract Ensembl IDs from row names
+Ensembl.id <- rownames(gene_expression_data)
+
+# Convert Ensembl IDs to gene names
+gene_names <- bitr(Ensembl.id, fromType = "ENSEMBL", toType = "SYMBOL", OrgDb = org.Hs.eg.db) # Change for human or mouse
+
+# Merge the gene names with your original data based on Ensembl IDs
+gene_expression_data$Symbol <- gene_names$SYMBOL[match(rownames(gene_expression_data), gene_names$ENSEMBL)]
+# Select a pathway of interest (adjust the pathway name as needed)
+selected_pathway <- "positive regulation of angiogenesis"  # Replace with the name of your pathway of interest
+
+###
+
+# Filter the GO pathway data to get the list of genes for the selected pathway
+genes_in_pathway <- pathway_results %>%
+  filter(Description == selected_pathway, GeneSet == "Upregulated_genes", Ontology == "BP") %>% #Can change Downregulated to Upregulated or All
+  pull(geneID) %>%
+  strsplit(split = "/") %>%
+  unlist()
+
+# Filter the gene expression data to keep only the genes in the selected pathway
+gene_expression_filtered <- gene_expression_data %>%
+  filter(Symbol %in% genes_in_pathway)
+
+# Sort genes alphabetically
+gene_expression_filtered <- gene_expression_filtered %>%
+  arrange(Symbol)
+
+# Select the control and experimental sample columns and order them accordingly
+sample_columns <- gene_expression_filtered %>%
+  dplyr::select(starts_with("Blood"), starts_with("Membrane")) %>%
+  colnames()
+
+# Extract the count data for these samples
+count_data <- gene_expression_filtered %>%
+  dplyr::select(Symbol, all_of(sample_columns))
+
+###
+
+# Set gene names as rownames and remove the Symbol column from data
+heatmap_data <- count_data
+rownames(heatmap_data) <- heatmap_data$Symbol
+heatmap_data <- heatmap_data[, -1]  # Remove the Symbol column
+
+# Convert to matrix
+heatmap_matrix <- as.matrix(heatmap_data)
+
+# Calculate z-scores for each row (gene)
+z_score_matrix <- t(apply(heatmap_matrix, 1, function(x) (x - mean(x)) / sd(x)))
+
+###
+
+# Clean up the pathway name for the file (remove spaces, special characters)
+cleaned_pathway_name <- gsub("[^A-Za-z0-9]", "_", selected_pathway)
+
+# Define the sizes of each group (change based on the samples you used)
+group_sizes <- c(
+  sum(startsWith(sample_columns, "Membrane")), 
+  sum(startsWith(sample_columns, "Blood"))
+)
+
+# Set up the PDF device for saving (change the comparison and the direction each time)
+pdf(file = paste0("Plots/", cleaned_pathway_name, "_MembranevsBlood", "_Up", "_heatmap.pdf"), width = 10, height = 12)
+
+# Plot heatmap using pheatmap, with custom gaps and thicker borders
+pheatmap(z_score_matrix, 
+         cluster_rows = TRUE,  # Cluster rows (genes)
+         cluster_cols = FALSE,  # Do not cluster columns (samples)
+         show_rownames = TRUE,  # Show gene names on rows
+         show_colnames = TRUE,  # Show sample names on columns
+         main = paste("Heatmap of Z-Scores for Pathway:", selected_pathway),
+         gaps_col = cumsum(group_sizes)[-length(group_sizes)],  # Adds a visual gap between groups (Assigned above)
+         border_color = "black",  # Black border around all cells
+         cellwidth = 15,  # Adjust cell width to make the gap more visible
+         cellheight = 12,  # Increase cell height to fit gene names
+         fontsize = 8,  # Reduce font size for overall plot
+         fontsize_row = 10,  # Smaller font size for row names (gene names)
+         fontsize_col = 10,  # Font size for column names (sample names)
+         angle_col = 45,  # Rotate column names to prevent overlap
+         color = colorRampPalette(c("#4682B4", "white", "#E34234"))(50),  # Custom color palette
+         legend_breaks = seq(-3, 3, 1),  # Define the scale for the legend
+         legend_labels = seq(-3, 3, 1),  # Label the scale
+         )
+
+# Turn off the plotting device
+dev.off()
+  
+```
+
+
+********************************************************************************
+
+
+I like to finish with the session info command as it lists all the versions that were used at the time of analysis. The other lines will save the output as a text file with the date that the command was run.
+```{r}
+sessionInfo()
+
+# Create filename with date prefix
+filename <- paste0(Sys.Date(), "_sessionInfo.txt")
+
+# Save sessionInfo output
+capture.output(sessionInfo(), file = filename)
+
+```

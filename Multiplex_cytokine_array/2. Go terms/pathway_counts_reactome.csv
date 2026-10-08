@@ -1,0 +1,185 @@
+"pathway_name","reactome_id","n_genes","size","ratio"
+"Immune System","R-HSA-168256",36,3033,0.0119
+"Cytokine Signaling in Immune system","R-HSA-1280215",35,1193,0.0293
+"Signaling by Interleukins","R-HSA-449147",33,646,0.0511
+"Interleukin-4 and Interleukin-13 signaling","R-HSA-6785807",23,211,0.109
+"Signal Transduction","R-HSA-162582",23,3056,0.0075
+"Interleukin-10 signaling","R-HSA-6783783",17,86,0.1977
+"Developmental Biology","R-HSA-1266738",13,2061,0.0063
+"Disease","R-HSA-1643685",12,3093,0.0039
+"Cellular responses to stress","R-HSA-2262752",10,1039,0.0096
+"Cellular responses to stimuli","R-HSA-8953897",10,1166,0.0086
+"Chemokine receptors bind chemokines","R-HSA-380108",9,57,0.1579
+"Peptide ligand-binding receptors","R-HSA-375276",9,205,0.0439
+"Class A/1 (Rhodopsin-like receptors)","R-HSA-373076",9,415,0.0217
+"GPCR ligand binding","R-HSA-500792",9,610,0.0148
+"Signaling by Receptor Tyrosine Kinases","R-HSA-9006934",9,634,0.0142
+"Signaling by GPCR","R-HSA-372790",9,878,0.0103
+"Generic Transcription Pathway","R-HSA-212436",8,1574,0.0051
+"RNA Polymerase II Transcription","R-HSA-73857",8,1678,0.0048
+"Gene expression (Transcription)","R-HSA-74160",8,1922,0.0042
+"Developmental Cell Lineages","R-HSA-9734767",7,340,0.0206
+"MAPK family signaling cascades","R-HSA-5683057",7,367,0.0191
+"Infectious disease","R-HSA-5663205",7,1965,0.0036
+"Differentiation of Circulating Monocytes","R-HSA-9968734",6,49,0.1224
+"Differentiation of T cells","R-HSA-9945266",6,100,0.06
+"MAPK1/MAPK3 signaling","R-HSA-5684996",6,316,0.019
+"Diseases of signal transduction by growth factor receptors and second messengers","R-HSA-5663202",6,536,0.0112
+"Constitutive Signaling by Aberrant PI3K in Cancer","R-HSA-2219530",5,104,0.0481
+"PI3K/AKT Signaling in Cancer","R-HSA-2219528",5,132,0.0379
+"PI5P, PP2A and IER3 Regulate PI3K/AKT Signaling","R-HSA-6811558",5,137,0.0365
+"Negative regulation of the PI3K/AKT network","R-HSA-199418",5,145,0.0345
+"Parasitic Infection Pathways","R-HSA-9824443",5,301,0.0166
+"Leishmania infection","R-HSA-9658195",5,301,0.0166
+"RAF/MAP kinase cascade","R-HSA-5673001",5,309,0.0162
+"PIP3 activates AKT signaling","R-HSA-1257604",5,315,0.0159
+"Intracellular signaling by second messengers","R-HSA-9006925",5,363,0.0138
+"G alpha (i) signalling events","R-HSA-418594",5,428,0.0117
+"GPCR downstream signalling","R-HSA-388396",5,795,0.0063
+"Innate Immune System","R-HSA-168249",5,1387,0.0036
+"Interleukin-18 signaling","R-HSA-9012546",4,11,0.3636
+"Differentiation of naive CD4+ T cells to T helper 1 cells (Th1 cells)","R-HSA-9942503",4,20,0.2
+"TFAP2 (AP-2) family regulates transcription of growth factors and their receptors","R-HSA-8866910",4,21,0.1905
+"ATF4 activates genes in response to endoplasmic reticulum  stress","R-HSA-380994",4,34,0.1176
+"PERK regulates gene expression","R-HSA-381042",4,42,0.0952
+"Transcriptional regulation by the AP-2 (TFAP2) family of transcription factors","R-HSA-8864260",4,52,0.0769
+"Gene and protein expression by JAK-STAT signaling after Interleukin-12 stimulation","R-HSA-8950505",4,73,0.0548
+"Interleukin-12 signaling","R-HSA-9020591",4,84,0.0476
+"Senescence-Associated Secretory Phenotype (SASP)","R-HSA-2559582",4,90,0.0444
+"Interleukin-12 family signaling","R-HSA-447115",4,96,0.0417
+"Nuclear events mediated by NFE2L2","R-HSA-9759194",4,135,0.0296
+"Platelet degranulation ","R-HSA-114608",4,142,0.0282
+"Response to elevated platelet cytosolic Ca2+","R-HSA-76005",4,149,0.0268
+"Unfolded Protein Response (UPR)","R-HSA-381119",4,156,0.0256
+"KEAP1-NFE2L2 pathway","R-HSA-9755511",4,169,0.0237
+"Interleukin-1 family signaling","R-HSA-446652",4,170,0.0235
+"Leishmania parasite growth and survival","R-HSA-9664433",4,192,0.0208
+"Anti-inflammatory response favouring Leishmania parasite infection","R-HSA-9662851",4,192,0.0208
+"Cellular Senescence","R-HSA-2559583",4,199,0.0201
+"ESR-mediated signaling","R-HSA-8939211",4,257,0.0156
+"Cellular response to chemical stress","R-HSA-9711123",4,288,0.0139
+"Platelet activation, signaling and aggregation","R-HSA-76002",4,294,0.0136
+"Extracellular matrix organization","R-HSA-1474244",4,351,0.0114
+"Signaling by Nuclear Receptors","R-HSA-9006931",4,383,0.0104
+"Hemostasis","R-HSA-109582",4,821,0.0049
+"Downstream signal transduction","R-HSA-186763",3,37,0.0811
+"Signaling by PDGF","R-HSA-186797",3,70,0.0429
+"Extra-nuclear estrogen signaling","R-HSA-9009391",3,112,0.0268
+"Signaling by VEGF","R-HSA-194138",3,141,0.0213
+"Metabolism of proteins","R-HSA-392499",3,2427,0.0012
+"NFE2L2 regulating inflammation associated genes","R-HSA-9818026",2,7,0.2857
+"VEGF binds to VEGFR leading to receptor dimerization","R-HSA-195399",2,8,0.25
+"VEGF ligand-receptor interactions","R-HSA-194313",2,8,0.25
+"CD163 mediating an anti-inflammatory response","R-HSA-9662834",2,14,0.1429
+"Regulation of gene expression by Hypoxia-inducible Factor","R-HSA-1234158",2,15,0.1333
+"RUNX1 and FOXP3 control the development of regulatory T lymphocytes (Tregs)","R-HSA-8877330",2,17,0.1176
+"NFE2L2 regulating tumorigenic genes","R-HSA-9818030",2,17,0.1176
+"Activation of Matrix Metalloproteinases","R-HSA-1592389",2,35,0.0571
+"Interleukin-2 family signaling","R-HSA-451927",2,47,0.0426
+"Transcriptional Regulation by VENTX","R-HSA-8853884",2,48,0.0417
+"Dectin-1 mediated noncanonical NF-kB signaling","R-HSA-5607761",2,53,0.0377
+"ADORA2B mediated anti-inflammatory cytokines production","R-HSA-9660821",2,53,0.0377
+"EPH-ephrin mediated repulsion of cells","R-HSA-3928665",2,55,0.0364
+"Collagen degradation","R-HSA-1442490",2,69,0.029
+"Cellular response to hypoxia","R-HSA-1234174",2,73,0.0274
+"Differentiation of naive CD4+ T cells to T helper 2 cells (Th2 cells)","R-HSA-9976102",2,82,0.0244
+"Non-integrin membrane-ECM interactions","R-HSA-3000171",2,83,0.0241
+"Activation of STAT3 by cadherin engagement","R-HSA-9958825",2,87,0.023
+"TNFR2 non-canonical NF-kB pathway","R-HSA-5668541",2,91,0.022
+"EPH-Ephrin signaling","R-HSA-2682334",2,102,0.0196
+"CLEC7A (Dectin-1) signaling","R-HSA-5607764",2,107,0.0187
+"Regulation of Insulin-like Growth Factor (IGF) transport and uptake by Insulin-like Growth Factor Binding Proteins (IGFBPs)","R-HSA-381426",2,127,0.0157
+"FCGR3A-mediated IL10 synthesis","R-HSA-9664323",2,141,0.0142
+"Degradation of the extracellular matrix","R-HSA-1474228",2,148,0.0135
+"Estrogen-dependent gene expression","R-HSA-9018519",2,153,0.0131
+"C-type lectin receptors (CLRs)","R-HSA-5621481",2,190,0.0105
+"Transcriptional regulation by RUNX1","R-HSA-8878171",2,246,0.0081
+"Adherens junctions interactions","R-HSA-418990",2,267,0.0075
+"Cell-cell junction organization","R-HSA-421270",2,300,0.0067
+"Cell junction organization","R-HSA-446728",2,327,0.0061
+"Cell-Cell communication","R-HSA-1500931",2,365,0.0055
+"Neutrophil degranulation","R-HSA-6798695",2,478,0.0042
+"Axon guidance","R-HSA-422475",2,566,0.0035
+"Nervous system development","R-HSA-9675108",2,603,0.0033
+"Viral Infection Pathways","R-HSA-9824446",2,1407,0.0014
+"Post-translational protein modification","R-HSA-597592",2,1676,0.0012
+"CASP4-mediated substrate cleavage","R-HSA-9960519",1,5,0.2
+"CASP5-mediated substrate cleavage","R-HSA-9960525",1,5,0.2
+"TNFR1-mediated ceramide production","R-HSA-5626978",1,6,0.1667
+"FLT3 signaling through SRC family kinases","R-HSA-9706374",1,6,0.1667
+"FLT3 signaling by CBL mutants","R-HSA-9706377",1,7,0.1429
+"Inhibition of Signaling by Overexpressed EGFR","R-HSA-5638303",1,8,0.125
+"Signaling by Overexpressed Wild-Type EGFR in Cancer","R-HSA-5638302",1,8,0.125
+"STAT5 Activation","R-HSA-9645135",1,9,0.1111
+"IFNG signaling activates MAPKs","R-HSA-9732724",1,10,0.1
+"Interleukin-9 signaling","R-HSA-8985947",1,11,0.0909
+"EGFR interacts with phospholipase C-gamma","R-HSA-212718",1,11,0.0909
+"MAPK1 (ERK2) activation","R-HSA-112411",1,12,0.0833
+"Interleukin-1 processing","R-HSA-448706",1,12,0.0833
+"MAPK3 (ERK1) activation","R-HSA-110056",1,13,0.0769
+"Regulation of IFNG signaling","R-HSA-877312",1,16,0.0625
+"GRB2 events in EGFR signaling","R-HSA-179812",1,16,0.0625
+"Interleukin-15 signaling","R-HSA-8983432",1,16,0.0625
+"TNF receptor superfamily (TNFSF) members mediating non-canonical NF-kB pathway","R-HSA-5676594",1,17,0.0588
+"Interleukin-6 signaling","R-HSA-1059683",1,17,0.0588
+"Non-canonical inflammasome activation","R-HSA-9686114",1,18,0.0556
+"SHC1 events in EGFR signaling","R-HSA-180336",1,19,0.0526
+"Negative regulation of FLT3","R-HSA-9706369",1,20,0.05
+"GAB1 signalosome","R-HSA-180292",1,23,0.0435
+"TNFR1-induced proapoptotic signaling","R-HSA-5357786",1,26,0.0385
+"RAF-independent MAPK1/3 activation","R-HSA-112409",1,28,0.0357
+"Estrogen-dependent nuclear events downstream of ESR-membrane signaling","R-HSA-9634638",1,29,0.0345
+"Interleukin-20 family signaling","R-HSA-8854691",1,29,0.0345
+"TNFs bind their physiological receptors","R-HSA-5669034",1,30,0.0333
+"Interleukin-6 family signaling","R-HSA-6783589",1,30,0.0333
+"Signaling by EGFR in Cancer","R-HSA-1643713",1,32,0.0312
+"VEGFR2 mediated cell proliferation","R-HSA-5218921",1,33,0.0303
+"TNFR1-induced NF-kappa-B signaling pathway","R-HSA-5357956",1,33,0.0303
+"Pyroptosis","R-HSA-5620971",1,34,0.0294
+"Developmental Lineage of Mammary Gland Myoepithelial Cells","R-HSA-9927432",1,36,0.0278
+"Cargo concentration in the ER","R-HSA-5694530",1,37,0.027
+"EGFR downregulation","R-HSA-182971",1,37,0.027
+"FLT3 signaling in disease","R-HSA-9682385",1,43,0.0233
+"FLT3 Signaling","R-HSA-9607240",1,48,0.0208
+"Developmental Lineage of Mammary Gland Luminal Epithelial Cells","R-HSA-9927418",1,50,0.02
+"Signaling by SCF-KIT","R-HSA-1433557",1,51,0.0196
+"Purinergic signaling in leishmaniasis infection","R-HSA-9660826",1,54,0.0185
+"Cell recruitment (pro-inflammatory response)","R-HSA-9664424",1,54,0.0185
+"Regulation of TNFR1 signaling","R-HSA-5357905",1,54,0.0185
+"PI3K Cascade","R-HSA-109704",1,58,0.0172
+"TNF signaling","R-HSA-75893",1,64,0.0156
+"Signaling by EGFR","R-HSA-177929",1,64,0.0156
+"IRS-mediated signalling","R-HSA-112399",1,65,0.0154
+"Assembly of collagen fibrils and other multimeric structures","R-HSA-2022090",1,67,0.0149
+"IRS-related events triggered by IGF1R","R-HSA-2428928",1,69,0.0145
+"Insulin receptor signalling cascade","R-HSA-74751",1,72,0.0139
+"IGF1R signaling cascade","R-HSA-2428924",1,72,0.0139
+"Signaling by Type 1 Insulin-like Growth Factor 1 Receptor (IGF1R)","R-HSA-2404192",1,73,0.0137
+"Regulated Necrosis","R-HSA-5218859",1,76,0.0132
+"COPII-mediated vesicle transport","R-HSA-204005",1,78,0.0128
+"Developmental Lineages of the Mammary Gland","R-HSA-9924644",1,81,0.0123
+"MAPK6/MAPK4 signaling","R-HSA-5687128",1,93,0.0108
+"Signaling by Insulin receptor","R-HSA-74752",1,102,0.0098
+"Collagen formation","R-HSA-1474290",1,104,0.0096
+"Transcriptional regulation of white adipocyte differentiation","R-HSA-381340",1,107,0.0093
+"Post-translational protein phosphorylation","R-HSA-8957275",1,109,0.0092
+"Cargo recognition for clathrin-mediated endocytosis","R-HSA-8856825",1,115,0.0087
+"Signaling by ALK in cancer","R-HSA-9700206",1,119,0.0084
+"Signaling by ALK fusions and activated point mutants","R-HSA-9725370",1,119,0.0084
+"Developmental Cell Lineages of the Integumentary System","R-HSA-9734779",1,122,0.0082
+"VEGFA-VEGFR2 Pathway","R-HSA-4420097",1,130,0.0077
+"Adipogenesis","R-HSA-9843745",1,147,0.0068
+"Clathrin-mediated endocytosis","R-HSA-8856828",1,161,0.0062
+"ER to Golgi Anterograde Transport","R-HSA-199977",1,165,0.0061
+"Potential therapeutics for SARS","R-HSA-9679191",1,168,0.006
+"Death Receptor Signaling","R-HSA-73887",1,172,0.0058
+"Interferon gamma signaling","R-HSA-877300",1,177,0.0056
+"Transport to the Golgi and subsequent modification","R-HSA-948021",1,220,0.0045
+"Programmed Cell Death","R-HSA-5357801",1,225,0.0044
+"Dengue Virus-Host Interactions","R-HSA-9918481",1,273,0.0037
+"Dengue Virus Infection","R-HSA-9839923",1,411,0.0024
+"Asparagine N-linked glycosylation","R-HSA-446203",1,438,0.0023
+"Interferon Signaling","R-HSA-913531",1,507,0.002
+"SARS-CoV Infections","R-HSA-9679506",1,580,0.0017
+"Membrane Trafficking","R-HSA-199991",1,669,0.0015
+"Vesicle-mediated transport","R-HSA-5653656",1,833,0.0012

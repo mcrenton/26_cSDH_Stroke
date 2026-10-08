@@ -1,0 +1,246 @@
+analyte,category,category_order,patient,concentration,status,LLoQ,LoD,median
+EGF,Angiogenesis & growth factors,1,Pt 43,13.0304,BLOQ,16.0,6.4349,14.3847
+EGF,Angiogenesis & growth factors,1,Pt 44,29.4813,QUANT,16.0,6.4349,14.3847
+EGF,Angiogenesis & growth factors,1,Pt 45,7.5231,BLOQ,16.0,6.4349,14.3847
+EGF,Angiogenesis & growth factors,1,Pt 74,14.3847,BLOQ,16.0,6.4349,14.3847
+EGF,Angiogenesis & growth factors,1,Pt 77,17.4565,QUANT,16.0,6.4349,14.3847
+FGF-2,Angiogenesis & growth factors,1,Pt 43,330.7726,QUANT,128.0,7.4604,330.7726
+FGF-2,Angiogenesis & growth factors,1,Pt 44,714.1874,QUANT,128.0,7.4604,330.7726
+FGF-2,Angiogenesis & growth factors,1,Pt 45,69.6735,BLOQ,128.0,7.4604,330.7726
+FGF-2,Angiogenesis & growth factors,1,Pt 74,619.8498,QUANT,128.0,7.4604,330.7726
+FGF-2,Angiogenesis & growth factors,1,Pt 77,93.0828,BLOQ,128.0,7.4604,330.7726
+PDGF-AA,Angiogenesis & growth factors,1,Pt 43,6457.538,QUANT,64.0,1.1693,6256.0353
+PDGF-AA,Angiogenesis & growth factors,1,Pt 44,1274.4405,QUANT,64.0,1.1693,6256.0353
+PDGF-AA,Angiogenesis & growth factors,1,Pt 45,6256.0353,QUANT,64.0,1.1693,6256.0353
+PDGF-AA,Angiogenesis & growth factors,1,Pt 74,4289.1213,QUANT,64.0,1.1693,6256.0353
+PDGF-AA,Angiogenesis & growth factors,1,Pt 77,14157.1618,QUANT,64.0,1.1693,6256.0353
+PDGF-AB/BB,Angiogenesis & growth factors,1,Pt 43,2568.7547,QUANT,1200.0,44.9872,1933.3081
+PDGF-AB/BB,Angiogenesis & growth factors,1,Pt 44,1384.3435,QUANT,1200.0,44.9872,1933.3081
+PDGF-AB/BB,Angiogenesis & growth factors,1,Pt 45,1294.05,QUANT,1200.0,44.9872,1933.3081
+PDGF-AB/BB,Angiogenesis & growth factors,1,Pt 74,1933.3081,QUANT,1200.0,44.9872,1933.3081
+PDGF-AB/BB,Angiogenesis & growth factors,1,Pt 77,2322.9099,QUANT,1200.0,44.9872,1933.3081
+TGFa,Angiogenesis & growth factors,1,Pt 43,10.8979,QUANT,6.4,1.5461,10.8979
+TGFa,Angiogenesis & growth factors,1,Pt 44,22.0673,QUANT,6.4,1.5461,10.8979
+TGFa,Angiogenesis & growth factors,1,Pt 45,7.0307,QUANT,6.4,1.5461,10.8979
+TGFa,Angiogenesis & growth factors,1,Pt 74,8.4039,QUANT,6.4,1.5461,10.8979
+TGFa,Angiogenesis & growth factors,1,Pt 77,73.8025,QUANT,6.4,1.5461,10.8979
+VEGF-A,Angiogenesis & growth factors,1,Pt 43,13311.2553,QUANT,12.8,2.6132,6412.1317
+VEGF-A,Angiogenesis & growth factors,1,Pt 44,18602.8385,QUANT,12.8,2.6132,6412.1317
+VEGF-A,Angiogenesis & growth factors,1,Pt 45,1128.9419,QUANT,12.8,2.6132,6412.1317
+VEGF-A,Angiogenesis & growth factors,1,Pt 74,6412.1317,QUANT,12.8,2.6132,6412.1317
+VEGF-A,Angiogenesis & growth factors,1,Pt 77,1958.3949,QUANT,12.8,2.6132,6412.1317
+MMP-2,Matrix remodeling / proteases,2,Pt 43,11086.4219,QUANT,205.76,83.0,9633.0898
+MMP-2,Matrix remodeling / proteases,2,Pt 44,7840.1213,QUANT,205.76,83.0,9633.0898
+MMP-2,Matrix remodeling / proteases,2,Pt 45,10070.1451,QUANT,205.76,83.0,9633.0898
+MMP-2,Matrix remodeling / proteases,2,Pt 74,9633.0898,QUANT,205.76,83.0,9633.0898
+MMP-2,Matrix remodeling / proteases,2,Pt 77,7698.6101,QUANT,205.76,83.0,9633.0898
+MMP-9,Matrix remodeling / proteases,2,Pt 43,120.8415,QUANT,13.72,0.16,298.0508
+MMP-9,Matrix remodeling / proteases,2,Pt 44,298.0508,QUANT,13.72,0.16,298.0508
+MMP-9,Matrix remodeling / proteases,2,Pt 45,299.803,QUANT,13.72,0.16,298.0508
+MMP-9,Matrix remodeling / proteases,2,Pt 74,203.2033,QUANT,13.72,0.16,298.0508
+MMP-9,Matrix remodeling / proteases,2,Pt 77,392.6396,QUANT,13.72,0.16,298.0508
+Eotaxin,Chemokines (leukocyte recruitment),3,Pt 43,55.6919,QUANT,3.2,1.6319,52.3765
+Eotaxin,Chemokines (leukocyte recruitment),3,Pt 44,28.4513,QUANT,3.2,1.6319,52.3765
+Eotaxin,Chemokines (leukocyte recruitment),3,Pt 45,53.6596,QUANT,3.2,1.6319,52.3765
+Eotaxin,Chemokines (leukocyte recruitment),3,Pt 74,13.5824,QUANT,3.2,1.6319,52.3765
+Eotaxin,Chemokines (leukocyte recruitment),3,Pt 77,52.3765,QUANT,3.2,1.6319,52.3765
+Fractalkine,Chemokines (leukocyte recruitment),3,Pt 43,230.0676,QUANT,160.0,27.7509,184.3114
+Fractalkine,Chemokines (leukocyte recruitment),3,Pt 44,136.0122,BLOQ,160.0,27.7509,184.3114
+Fractalkine,Chemokines (leukocyte recruitment),3,Pt 45,184.3114,QUANT,160.0,27.7509,184.3114
+Fractalkine,Chemokines (leukocyte recruitment),3,Pt 74,60.4211,BLOQ,160.0,27.7509,184.3114
+Fractalkine,Chemokines (leukocyte recruitment),3,Pt 77,308.864,QUANT,160.0,27.7509,184.3114
+GROa,Chemokines (leukocyte recruitment),3,Pt 43,521.2519,QUANT,1.28,0.9642,277.7874
+GROa,Chemokines (leukocyte recruitment),3,Pt 44,1137.1693,QUANT,1.28,0.9642,277.7874
+GROa,Chemokines (leukocyte recruitment),3,Pt 45,56.1014,QUANT,1.28,0.9642,277.7874
+GROa,Chemokines (leukocyte recruitment),3,Pt 74,277.7874,QUANT,1.28,0.9642,277.7874
+GROa,Chemokines (leukocyte recruitment),3,Pt 77,6.7929,QUANT,1.28,0.9642,277.7874
+IL-8,Chemokines (leukocyte recruitment),3,Pt 43,10646.4895,QUANT,0.64,0.2007,10646.4895
+IL-8,Chemokines (leukocyte recruitment),3,Pt 44,12126.1172,QUANT,0.64,0.2007,10646.4895
+IL-8,Chemokines (leukocyte recruitment),3,Pt 45,3873.4066,QUANT,0.64,0.2007,10646.4895
+IL-8,Chemokines (leukocyte recruitment),3,Pt 74,12673.5936,QUANT,0.64,0.2007,10646.4895
+IL-8,Chemokines (leukocyte recruitment),3,Pt 77,557.7313,QUANT,0.64,0.2007,10646.4895
+IP-10,Chemokines (leukocyte recruitment),3,Pt 43,3527.9229,QUANT,12.8,1.1746,1493.3973
+IP-10,Chemokines (leukocyte recruitment),3,Pt 44,3183.7188,QUANT,12.8,1.1746,1493.3973
+IP-10,Chemokines (leukocyte recruitment),3,Pt 45,167.8776,QUANT,12.8,1.1746,1493.3973
+IP-10,Chemokines (leukocyte recruitment),3,Pt 74,1420.2923,QUANT,12.8,1.1746,1493.3973
+IP-10,Chemokines (leukocyte recruitment),3,Pt 77,1493.3973,QUANT,12.8,1.1746,1493.3973
+MCP-1,Chemokines (leukocyte recruitment),3,Pt 43,43184.2938,QUANT,80.0,2.5393,2686.2875
+MCP-1,Chemokines (leukocyte recruitment),3,Pt 44,31558.5816,QUANT,80.0,2.5393,2686.2875
+MCP-1,Chemokines (leukocyte recruitment),3,Pt 45,1821.9387,QUANT,80.0,2.5393,2686.2875
+MCP-1,Chemokines (leukocyte recruitment),3,Pt 74,2624.1282,QUANT,80.0,2.5393,2686.2875
+MCP-1,Chemokines (leukocyte recruitment),3,Pt 77,2686.2875,QUANT,80.0,2.5393,2686.2875
+MCP-3,Chemokines (leukocyte recruitment),3,Pt 43,509.3773,QUANT,40.0,9.3319,166.0263
+MCP-3,Chemokines (leukocyte recruitment),3,Pt 44,5443.3766,QUANT,40.0,9.3319,166.0263
+MCP-3,Chemokines (leukocyte recruitment),3,Pt 45,78.3693,QUANT,40.0,9.3319,166.0263
+MCP-3,Chemokines (leukocyte recruitment),3,Pt 74,166.0263,QUANT,40.0,9.3319,166.0263
+MCP-3,Chemokines (leukocyte recruitment),3,Pt 77,54.2379,QUANT,40.0,9.3319,166.0263
+MDC,Chemokines (leukocyte recruitment),3,Pt 43,2438.6818,QUANT,3.2,0.3987,2438.6818
+MDC,Chemokines (leukocyte recruitment),3,Pt 44,4134.0997,QUANT,3.2,0.3987,2438.6818
+MDC,Chemokines (leukocyte recruitment),3,Pt 45,8964.0914,QUANT,3.2,0.3987,2438.6818
+MDC,Chemokines (leukocyte recruitment),3,Pt 74,769.1339,QUANT,3.2,0.3987,2438.6818
+MDC,Chemokines (leukocyte recruitment),3,Pt 77,1015.0717,QUANT,3.2,0.3987,2438.6818
+MIG,Chemokines (leukocyte recruitment),3,Pt 43,22814.4198,QUANT,800.0,11.7606,13757.0044
+MIG,Chemokines (leukocyte recruitment),3,Pt 44,13757.0044,QUANT,800.0,11.7606,13757.0044
+MIG,Chemokines (leukocyte recruitment),3,Pt 45,16852.4641,QUANT,800.0,11.7606,13757.0044
+MIG,Chemokines (leukocyte recruitment),3,Pt 74,7013.9268,QUANT,800.0,11.7606,13757.0044
+MIG,Chemokines (leukocyte recruitment),3,Pt 77,12497.0285,QUANT,800.0,11.7606,13757.0044
+MIP-1a,Chemokines (leukocyte recruitment),3,Pt 43,39.8708,BLOQ,80.0,0.8795,29.4355
+MIP-1a,Chemokines (leukocyte recruitment),3,Pt 44,47.4783,BLOQ,80.0,0.8795,29.4355
+MIP-1a,Chemokines (leukocyte recruitment),3,Pt 45,16.3165,BLOQ,80.0,0.8795,29.4355
+MIP-1a,Chemokines (leukocyte recruitment),3,Pt 74,29.4355,BLOQ,80.0,0.8795,29.4355
+MIP-1a,Chemokines (leukocyte recruitment),3,Pt 77,20.1276,BLOQ,80.0,0.8795,29.4355
+MIP-1b,Chemokines (leukocyte recruitment),3,Pt 43,39.6078,BLOQ,48.0,0.3704,23.9176
+MIP-1b,Chemokines (leukocyte recruitment),3,Pt 44,16.4754,BLOQ,48.0,0.3704,23.9176
+MIP-1b,Chemokines (leukocyte recruitment),3,Pt 45,23.9176,BLOQ,48.0,0.3704,23.9176
+MIP-1b,Chemokines (leukocyte recruitment),3,Pt 74,27.2783,BLOQ,48.0,0.3704,23.9176
+MIP-1b,Chemokines (leukocyte recruitment),3,Pt 77,22.6111,BLOQ,48.0,0.3704,23.9176
+IFNa2,Pro-inflammatory cytokines,4,Pt 43,27.9702,BLOQ,40.0,5.7803,12.3682
+IFNa2,Pro-inflammatory cytokines,4,Pt 44,12.3682,BLOQ,40.0,5.7803,12.3682
+IFNa2,Pro-inflammatory cytokines,4,Pt 45,8.0623,BLOQ,40.0,5.7803,12.3682
+IFNa2,Pro-inflammatory cytokines,4,Pt 74,12.3621,BLOQ,40.0,5.7803,12.3682
+IFNa2,Pro-inflammatory cytokines,4,Pt 77,13.1048,BLOQ,40.0,5.7803,12.3682
+IFNy,Pro-inflammatory cytokines,4,Pt 43,74.2023,QUANT,1.28,0.8631,74.2023
+IFNy,Pro-inflammatory cytokines,4,Pt 44,28.6266,QUANT,1.28,0.8631,74.2023
+IFNy,Pro-inflammatory cytokines,4,Pt 45,93.5691,QUANT,1.28,0.8631,74.2023
+IFNy,Pro-inflammatory cytokines,4,Pt 74,65.1649,QUANT,1.28,0.8631,74.2023
+IFNy,Pro-inflammatory cytokines,4,Pt 77,147.4526,QUANT,1.28,0.8631,74.2023
+IL-1a,Pro-inflammatory cytokines,4,Pt 43,43.1016,QUANT,24.0,,43.1016
+IL-1a,Pro-inflammatory cytokines,4,Pt 44,228.4733,QUANT,24.0,,43.1016
+IL-1a,Pro-inflammatory cytokines,4,Pt 45,35.5287,QUANT,24.0,,43.1016
+IL-1a,Pro-inflammatory cytokines,4,Pt 74,179.0883,QUANT,24.0,,43.1016
+IL-1a,Pro-inflammatory cytokines,4,Pt 77,14.0092,BLOQ,24.0,,43.1016
+IL-1b,Pro-inflammatory cytokines,4,Pt 43,10.3985,QUANT,8.0,4.5962,10.4293
+IL-1b,Pro-inflammatory cytokines,4,Pt 44,35.4064,QUANT,8.0,4.5962,10.4293
+IL-1b,Pro-inflammatory cytokines,4,Pt 45,,ND,8.0,4.5962,10.4293
+IL-1b,Pro-inflammatory cytokines,4,Pt 74,10.4293,QUANT,8.0,4.5962,10.4293
+IL-1b,Pro-inflammatory cytokines,4,Pt 77,,ND,8.0,4.5962,10.4293
+IL-2,Pro-inflammatory cytokines,4,Pt 43,10.2649,QUANT,3.2,1.6998,4.515
+IL-2,Pro-inflammatory cytokines,4,Pt 44,5.923,QUANT,3.2,1.6998,4.515
+IL-2,Pro-inflammatory cytokines,4,Pt 45,1.8959,BLOQ,3.2,1.6998,4.515
+IL-2,Pro-inflammatory cytokines,4,Pt 74,3.5358,QUANT,3.2,1.6998,4.515
+IL-2,Pro-inflammatory cytokines,4,Pt 77,4.515,QUANT,3.2,1.6998,4.515
+IL-3,Pro-inflammatory cytokines,4,Pt 43,,ND,6.4,1.6704,
+IL-3,Pro-inflammatory cytokines,4,Pt 44,,ND,6.4,1.6704,
+IL-3,Pro-inflammatory cytokines,4,Pt 45,,ND,6.4,1.6704,
+IL-3,Pro-inflammatory cytokines,4,Pt 74,,ND,6.4,1.6704,
+IL-3,Pro-inflammatory cytokines,4,Pt 77,,ND,6.4,1.6704,
+IL-6,Pro-inflammatory cytokines,4,Pt 43,15993.5349,QUANT,3.2,0.1902,13365.9456
+IL-6,Pro-inflammatory cytokines,4,Pt 44,13365.9456,QUANT,3.2,0.1902,13365.9456
+IL-6,Pro-inflammatory cytokines,4,Pt 45,18793.8442,QUANT,3.2,0.1902,13365.9456
+IL-6,Pro-inflammatory cytokines,4,Pt 74,13296.7511,QUANT,3.2,0.1902,13365.9456
+IL-6,Pro-inflammatory cytokines,4,Pt 77,11447.0678,QUANT,3.2,0.1902,13365.9456
+IL-12p40,Pro-inflammatory cytokines,4,Pt 43,322.6343,QUANT,160.0,3.0848,322.6343
+IL-12p40,Pro-inflammatory cytokines,4,Pt 44,338.7318,QUANT,160.0,3.0848,322.6343
+IL-12p40,Pro-inflammatory cytokines,4,Pt 45,357.5649,QUANT,160.0,3.0848,322.6343
+IL-12p40,Pro-inflammatory cytokines,4,Pt 74,122.5525,BLOQ,160.0,3.0848,322.6343
+IL-12p40,Pro-inflammatory cytokines,4,Pt 77,219.3284,QUANT,160.0,3.0848,322.6343
+IL-12p70,Pro-inflammatory cytokines,4,Pt 43,9.5956,BLOQ,16.0,,4.8008
+IL-12p70,Pro-inflammatory cytokines,4,Pt 44,6.9297,BLOQ,16.0,,4.8008
+IL-12p70,Pro-inflammatory cytokines,4,Pt 45,2.5592,BLOQ,16.0,,4.8008
+IL-12p70,Pro-inflammatory cytokines,4,Pt 74,3.7594,BLOQ,16.0,,4.8008
+IL-12p70,Pro-inflammatory cytokines,4,Pt 77,4.8008,BLOQ,16.0,,4.8008
+IL-15,Pro-inflammatory cytokines,4,Pt 43,47.4936,QUANT,3.2,2.7868,35.3457
+IL-15,Pro-inflammatory cytokines,4,Pt 44,50.3047,QUANT,3.2,2.7868,35.3457
+IL-15,Pro-inflammatory cytokines,4,Pt 45,35.3457,QUANT,3.2,2.7868,35.3457
+IL-15,Pro-inflammatory cytokines,4,Pt 74,18.2526,QUANT,3.2,2.7868,35.3457
+IL-15,Pro-inflammatory cytokines,4,Pt 77,30.0768,QUANT,3.2,2.7868,35.3457
+IL-17A,Pro-inflammatory cytokines,4,Pt 43,16.7472,QUANT,6.4,1.225,9.3775
+IL-17A,Pro-inflammatory cytokines,4,Pt 44,11.6835,QUANT,6.4,1.225,9.3775
+IL-17A,Pro-inflammatory cytokines,4,Pt 45,3.5602,BLOQ,6.4,1.225,9.3775
+IL-17A,Pro-inflammatory cytokines,4,Pt 74,5.4335,BLOQ,6.4,1.225,9.3775
+IL-17A,Pro-inflammatory cytokines,4,Pt 77,9.3775,QUANT,6.4,1.225,9.3775
+IL-17E/IL-25,Pro-inflammatory cytokines,4,Pt 43,512.187,BLOQ,1000.0,220.838,624.1118
+IL-17E/IL-25,Pro-inflammatory cytokines,4,Pt 44,739.335,BLOQ,1000.0,220.838,624.1118
+IL-17E/IL-25,Pro-inflammatory cytokines,4,Pt 45,412.0146,BLOQ,1000.0,220.838,624.1118
+IL-17E/IL-25,Pro-inflammatory cytokines,4,Pt 74,624.1118,BLOQ,1000.0,220.838,624.1118
+IL-17E/IL-25,Pro-inflammatory cytokines,4,Pt 77,852.3194,BLOQ,1000.0,220.838,624.1118
+IL-17F,Pro-inflammatory cytokines,4,Pt 43,34.7903,QUANT,32.0,4.9404,32.5633
+IL-17F,Pro-inflammatory cytokines,4,Pt 44,32.5633,QUANT,32.0,4.9404,32.5633
+IL-17F,Pro-inflammatory cytokines,4,Pt 45,6.5068,BLOQ,32.0,4.9404,32.5633
+IL-17F,Pro-inflammatory cytokines,4,Pt 74,10.5494,BLOQ,32.0,4.9404,32.5633
+IL-17F,Pro-inflammatory cytokines,4,Pt 77,160.7326,QUANT,32.0,4.9404,32.5633
+IL-18,Pro-inflammatory cytokines,4,Pt 43,41.0478,QUANT,3.2,,32.7876
+IL-18,Pro-inflammatory cytokines,4,Pt 44,196.8994,QUANT,3.2,,32.7876
+IL-18,Pro-inflammatory cytokines,4,Pt 45,31.7938,QUANT,3.2,,32.7876
+IL-18,Pro-inflammatory cytokines,4,Pt 74,32.7876,QUANT,3.2,,32.7876
+IL-18,Pro-inflammatory cytokines,4,Pt 77,3.7788,QUANT,3.2,,32.7876
+TNFa,Pro-inflammatory cytokines,4,Pt 43,22.943,QUANT,6.4,0.4267,17.5973
+TNFa,Pro-inflammatory cytokines,4,Pt 44,17.0155,QUANT,6.4,0.4267,17.5973
+TNFa,Pro-inflammatory cytokines,4,Pt 45,17.5973,QUANT,6.4,0.4267,17.5973
+TNFa,Pro-inflammatory cytokines,4,Pt 74,16.4135,QUANT,6.4,0.4267,17.5973
+TNFa,Pro-inflammatory cytokines,4,Pt 77,33.8163,QUANT,6.4,0.4267,17.5973
+TNFb,Pro-inflammatory cytokines,4,Pt 43,179.2732,QUANT,8.0,0.3155,74.3238
+TNFb,Pro-inflammatory cytokines,4,Pt 44,174.4614,QUANT,8.0,0.3155,74.3238
+TNFb,Pro-inflammatory cytokines,4,Pt 45,35.5185,QUANT,8.0,0.3155,74.3238
+TNFb,Pro-inflammatory cytokines,4,Pt 74,74.3238,QUANT,8.0,0.3155,74.3238
+TNFb,Pro-inflammatory cytokines,4,Pt 77,39.9596,QUANT,8.0,0.3155,74.3238
+IL-1RA,Regulatory / anti-inflammatory,5,Pt 43,68.2838,QUANT,8.0,1.7843,60.6801
+IL-1RA,Regulatory / anti-inflammatory,5,Pt 44,639.5848,QUANT,8.0,1.7843,60.6801
+IL-1RA,Regulatory / anti-inflammatory,5,Pt 45,16.5471,QUANT,8.0,1.7843,60.6801
+IL-1RA,Regulatory / anti-inflammatory,5,Pt 74,60.6801,QUANT,8.0,1.7843,60.6801
+IL-1RA,Regulatory / anti-inflammatory,5,Pt 77,6.1321,BLOQ,8.0,1.7843,60.6801
+IL-4,Regulatory / anti-inflammatory,5,Pt 43,42.1463,QUANT,16.0,2.1204,14.1688
+IL-4,Regulatory / anti-inflammatory,5,Pt 44,52.6805,QUANT,16.0,2.1204,14.1688
+IL-4,Regulatory / anti-inflammatory,5,Pt 45,5.9958,BLOQ,16.0,2.1204,14.1688
+IL-4,Regulatory / anti-inflammatory,5,Pt 74,14.1688,BLOQ,16.0,2.1204,14.1688
+IL-4,Regulatory / anti-inflammatory,5,Pt 77,10.452,BLOQ,16.0,2.1204,14.1688
+IL-5,Regulatory / anti-inflammatory,5,Pt 43,3740.2272,QUANT,3.2,0.0874,1093.0873
+IL-5,Regulatory / anti-inflammatory,5,Pt 44,3324.8677,QUANT,3.2,0.0874,1093.0873
+IL-5,Regulatory / anti-inflammatory,5,Pt 45,1093.0873,QUANT,3.2,0.0874,1093.0873
+IL-5,Regulatory / anti-inflammatory,5,Pt 74,1.6008,BLOQ,3.2,0.0874,1093.0873
+IL-5,Regulatory / anti-inflammatory,5,Pt 77,1.0591,BLOQ,3.2,0.0874,1093.0873
+IL-9,Regulatory / anti-inflammatory,5,Pt 43,52.669,QUANT,16.0,,46.4978
+IL-9,Regulatory / anti-inflammatory,5,Pt 44,162.2622,QUANT,16.0,,46.4978
+IL-9,Regulatory / anti-inflammatory,5,Pt 45,46.4978,QUANT,16.0,,46.4978
+IL-9,Regulatory / anti-inflammatory,5,Pt 74,23.1429,QUANT,16.0,,46.4978
+IL-9,Regulatory / anti-inflammatory,5,Pt 77,22.7725,QUANT,16.0,,46.4978
+IL-10,Regulatory / anti-inflammatory,5,Pt 43,699.4789,QUANT,2.56,0.2283,141.3028
+IL-10,Regulatory / anti-inflammatory,5,Pt 44,985.6085,QUANT,2.56,0.2283,141.3028
+IL-10,Regulatory / anti-inflammatory,5,Pt 45,141.3028,QUANT,2.56,0.2283,141.3028
+IL-10,Regulatory / anti-inflammatory,5,Pt 74,50.2244,QUANT,2.56,0.2283,141.3028
+IL-10,Regulatory / anti-inflammatory,5,Pt 77,64.0665,QUANT,2.56,0.2283,141.3028
+IL-13,Regulatory / anti-inflammatory,5,Pt 43,859.0432,QUANT,32.0,4.691,169.1375
+IL-13,Regulatory / anti-inflammatory,5,Pt 44,632.7848,QUANT,32.0,4.691,169.1375
+IL-13,Regulatory / anti-inflammatory,5,Pt 45,169.1375,QUANT,32.0,4.691,169.1375
+IL-13,Regulatory / anti-inflammatory,5,Pt 74,105.2848,QUANT,32.0,4.691,169.1375
+IL-13,Regulatory / anti-inflammatory,5,Pt 77,64.7361,QUANT,32.0,4.691,169.1375
+IL-22,Regulatory / anti-inflammatory,5,Pt 43,100.0127,BLOQ,320.0,18.4697,100.0127
+IL-22,Regulatory / anti-inflammatory,5,Pt 44,160.4251,BLOQ,320.0,18.4697,100.0127
+IL-22,Regulatory / anti-inflammatory,5,Pt 45,65.5937,BLOQ,320.0,18.4697,100.0127
+IL-22,Regulatory / anti-inflammatory,5,Pt 74,182.5156,BLOQ,320.0,18.4697,100.0127
+IL-22,Regulatory / anti-inflammatory,5,Pt 77,97.4808,BLOQ,320.0,18.4697,100.0127
+IL-27,Regulatory / anti-inflammatory,5,Pt 43,214.7249,BLOQ,400.0,16.8246,355.4488
+IL-27,Regulatory / anti-inflammatory,5,Pt 44,555.5874,QUANT,400.0,16.8246,355.4488
+IL-27,Regulatory / anti-inflammatory,5,Pt 45,355.4488,BLOQ,400.0,16.8246,355.4488
+IL-27,Regulatory / anti-inflammatory,5,Pt 74,175.3535,BLOQ,400.0,16.8246,355.4488
+IL-27,Regulatory / anti-inflammatory,5,Pt 77,529.8497,QUANT,400.0,16.8246,355.4488
+sCD40L,Hematopoietic / myeloid factors,6,Pt 43,946.8716,BLOQ,1600.0,265.8334,431.0857
+sCD40L,Hematopoietic / myeloid factors,6,Pt 44,647.4219,BLOQ,1600.0,265.8334,431.0857
+sCD40L,Hematopoietic / myeloid factors,6,Pt 45,397.9718,BLOQ,1600.0,265.8334,431.0857
+sCD40L,Hematopoietic / myeloid factors,6,Pt 74,431.0857,BLOQ,1600.0,265.8334,431.0857
+sCD40L,Hematopoietic / myeloid factors,6,Pt 77,317.0628,BLOQ,1600.0,265.8334,431.0857
+FLT-3L,Hematopoietic / myeloid factors,6,Pt 43,31.9361,QUANT,0.96,0.2495,25.7776
+FLT-3L,Hematopoietic / myeloid factors,6,Pt 44,47.5898,QUANT,0.96,0.2495,25.7776
+FLT-3L,Hematopoietic / myeloid factors,6,Pt 45,24.0376,QUANT,0.96,0.2495,25.7776
+FLT-3L,Hematopoietic / myeloid factors,6,Pt 74,4.4615,QUANT,0.96,0.2495,25.7776
+FLT-3L,Hematopoietic / myeloid factors,6,Pt 77,25.7776,QUANT,0.96,0.2495,25.7776
+G-CSF,Hematopoietic / myeloid factors,6,Pt 43,3195.5973,QUANT,120.0,2.3188,6016.0385
+G-CSF,Hematopoietic / myeloid factors,6,Pt 44,54179.4553,QUANT,120.0,2.3188,6016.0385
+G-CSF,Hematopoietic / myeloid factors,6,Pt 45,6016.0385,QUANT,120.0,2.3188,6016.0385
+G-CSF,Hematopoietic / myeloid factors,6,Pt 74,61066.5093,QUANT,120.0,2.3188,6016.0385
+G-CSF,Hematopoietic / myeloid factors,6,Pt 77,61.0233,BLOQ,120.0,2.3188,6016.0385
+GM-CSF,Hematopoietic / myeloid factors,6,Pt 43,79.2716,BLOQ,320.0,13.468,55.6956
+GM-CSF,Hematopoietic / myeloid factors,6,Pt 44,159.3383,BLOQ,320.0,13.468,55.6956
+GM-CSF,Hematopoietic / myeloid factors,6,Pt 45,33.7423,BLOQ,320.0,13.468,55.6956
+GM-CSF,Hematopoietic / myeloid factors,6,Pt 74,42.4779,BLOQ,320.0,13.468,55.6956
+GM-CSF,Hematopoietic / myeloid factors,6,Pt 77,55.6956,BLOQ,320.0,13.468,55.6956
+IL-7,Hematopoietic / myeloid factors,6,Pt 43,4.1474,QUANT,0.64,,0.4587
+IL-7,Hematopoietic / myeloid factors,6,Pt 44,,ND,0.64,,0.4587
+IL-7,Hematopoietic / myeloid factors,6,Pt 45,,ND,0.64,,0.4587
+IL-7,Hematopoietic / myeloid factors,6,Pt 74,0.4587,BLOQ,0.64,,0.4587
+IL-7,Hematopoietic / myeloid factors,6,Pt 77,0.2028,BLOQ,0.64,,0.4587
+M-CSF,Hematopoietic / myeloid factors,6,Pt 43,54.7403,QUANT,40.0,2.6336,97.0572
+M-CSF,Hematopoietic / myeloid factors,6,Pt 44,465.0622,QUANT,40.0,2.6336,97.0572
+M-CSF,Hematopoietic / myeloid factors,6,Pt 45,97.0572,QUANT,40.0,2.6336,97.0572
+M-CSF,Hematopoietic / myeloid factors,6,Pt 74,219.2507,QUANT,40.0,2.6336,97.0572
+M-CSF,Hematopoietic / myeloid factors,6,Pt 77,14.6781,BLOQ,40.0,2.6336,97.0572

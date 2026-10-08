@@ -1,0 +1,25 @@
+"analyte","gene","category","n_quant","n_pat"
+"Eotaxin","CCL11","Chemokines (leukocyte recruitment)",5,5
+"FLT-3L","FLT3LG","Hematopoietic / myeloid factors",5,5
+"GROa","CXCL1","Chemokines (leukocyte recruitment)",5,5
+"IFNy","IFNG","Pro-inflammatory cytokines",5,5
+"IL-10","IL10","Regulatory / anti-inflammatory",5,5
+"IL-13","IL13","Regulatory / anti-inflammatory",5,5
+"IL-15","IL15","Pro-inflammatory cytokines",5,5
+"IL-18","IL18","Pro-inflammatory cytokines",5,5
+"IL-6","IL6","Pro-inflammatory cytokines",5,5
+"IL-8","CXCL8","Chemokines (leukocyte recruitment)",5,5
+"IL-9","IL9","Regulatory / anti-inflammatory",5,5
+"IP-10","CXCL10","Chemokines (leukocyte recruitment)",5,5
+"MCP-1","CCL2","Chemokines (leukocyte recruitment)",5,5
+"MCP-3","CCL7","Chemokines (leukocyte recruitment)",5,5
+"MDC","CCL22","Chemokines (leukocyte recruitment)",5,5
+"MIG","CXCL9","Chemokines (leukocyte recruitment)",5,5
+"MMP-2","MMP2","Matrix remodeling / proteases",5,5
+"MMP-9","MMP9","Matrix remodeling / proteases",5,5
+"PDGF-AA","PDGFA","Angiogenesis & growth factors",5,5
+"PDGF-AB/BB","PDGFB","Angiogenesis & growth factors",5,5
+"TGFa","TGFA","Angiogenesis & growth factors",5,5
+"TNFa","TNF","Pro-inflammatory cytokines",5,5
+"TNFb","LTA","Pro-inflammatory cytokines",5,5
+"VEGF-A","VEGFA","Angiogenesis & growth factors",5,5
